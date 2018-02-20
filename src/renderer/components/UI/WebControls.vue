@@ -1,14 +1,24 @@
 <template lang="html">
-<div id="web_controls" class="fullscreen web_controls d-flex w-100 flex-column align-items-center">
-	<div id="url_bar" class="w-75 mt-5">
-		<h2 id="page_title" class="flex-center">{{ config.currentUrl }}</h2>
-		<form id="url_form" class="">
-			<div class="from-group">
-				<input id="tb_url" type="text" value="" class="form-control form-control-lg" v-model="config.requestUrl"
+<div id="web_controls" class="web_controls">
+	<div class="inner_web_controls fullscreen d-flex w-100 flex-column align-items-center">
+		<div id="url_bar" class="url_bar w-75">
+			<h2 id="page_title" class="page_title flex-center">{{ config.webViews[config.currentWebViewIndex].title }}</h2>
+			<form id="url_form" class="url_form">
+				<div class="">
+					<input id="tb_url" type="text" value="" class="form-control form-control-lg" v-model="config.requestUrl"
 					v-on:input="globalMethods.requestSearchSuggestions(config.requestUrl, true)">
-				<input type="submit" value="Go" hidden v-on:click.prevent="globalMethods.submitRequestUrl()">
-			</div>
-		</form>
+					<input type="submit" value="Go" hidden v-on:click.prevent="globalMethods.submitRequestUrl()">
+				</div>
+			</form>
+		</div>
+		<div id="tab_bar" class="tab_bar w-75 mt-5 d-flex justify-content-center">
+			<span class="tab_card navbar-brand px-3" v-for="webview in config.webViews"
+				v-bind:class="webview.index === config.currentWebViewIndex ? 'current' : ''"
+				v-on:click="goToTabByIndex(webview)">
+				<img class="align-middle mr-2" :src="webview.icon" alt="">
+				<span class="align-middle">{{ webview.title }}</span>
+			</span>
+		</div>
 	</div>
 </div>
 </template>
@@ -26,10 +36,12 @@ export default {
 		let urlBar = $('#tb_url');
 		urlBar.focus();
 		urlBar.select();
-
 	},
 	methods: {
-		//
+		goToTabByIndex: function(webview) {
+			this.globalMethods.presentTabByIndex(webview.index);
+			this.globalMethods.closeWebControls();
+		}
 	}
 }
 </script>
@@ -43,9 +55,8 @@ $aqua_input_text_focus_border: #fff;
 
 $web_controls_top_spacing: 20vh;
 
-#web_controls {
+.web_controls {
 	color: $aqua_input_text_blur;
-	padding-top: $web_controls_top_spacing;
 	// background: rgba(0, 0, 0, 0.8);
 	:after {
 		content: "";
@@ -58,19 +69,19 @@ $web_controls_top_spacing: 20vh;
 		position: absolute;
 		background-image: linear-gradient(60deg, #3d3393 0%, #2b76b9 37%, #2cacd1 65%, #35eb93 100%);
 	}
-
-	#url_bar {
+	.inner_web_controls {
+		padding-top: $web_controls_top_spacing;
 		z-index: 1;
-		#url_form {
+	}
+	.url_bar {
+		.url_form {
 
 			input#tb_url[type=text] {
-				height: 2.5rem;
 				width: 100%;
 				outline: 0;
-				padding: 0 .4375rem;
 				font-size: 1.5rem;
 				text-align: center;
-				background-color: $aqua_input_bg_blur;
+				background-color: rgba(#cdcdcd, 0.5);
 
 				&:focus {
 					background-color: $aqua_input_bg;
@@ -86,6 +97,37 @@ $web_controls_top_spacing: 20vh;
 					&::-moz-placeholder { color:transparent; } /* FF 19+ */
 					&:-ms-input-placeholder { color:transparent; } /* IE 10+ */
 				}
+			}
+		}
+	}
+
+	.tab_bar {
+		.tab_card {
+			max-width: 25%;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			border: .5px solid transparent;
+			background-color: transparent;
+			font-weight: bold;
+			transition: all .25s;
+
+			img {
+				height: 22px;
+				width: auto;
+			}
+
+			&.current {
+				border-bottom: .5px solid #fb8800 !important;
+				&:hover {
+					border-bottom-width: 2px !important;
+				}
+			}
+			&:hover {
+				border-radius: 4px;
+				border: .5px solid #fff;
+				background-color: rgba(#cdcdcd, 0.5);
+				color: #000;
+				cursor: pointer;
 			}
 		}
 	}

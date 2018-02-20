@@ -1,6 +1,13 @@
 # frame
 
-> A WebBrowser with minimal visual UI.
+> A KeyBoard ShortCut based WebBrowser with minimal visual UI.
+
+> ## ShortCuts
+> | ShortCut  | Action
+> | --------- |---------
+> | CMD+T     | New Tab
+> | CMD+L     | Open Controls
+> | CTRL+TAB  | Next Tab
 
 #### Build Setup
 
