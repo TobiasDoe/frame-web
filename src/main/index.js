@@ -3,6 +3,9 @@ import {
 	BrowserWindow
 } from 'electron';
 
+const Config = require('electron-config');
+const config = new Config();
+
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -18,10 +21,12 @@ let browserOptions = {
 	minWidth: 400,
 	minHeight: 250,
 	frame: false,
-	titleBarStyle: 'hidden',
+	show: false,
 	useContentSize: true
+	// titleBarStyle: 'hidden',
 	// icon: './resources/icons/appIcon.png',
 };
+
 const winURL = process.env.NODE_ENV === 'development' ?
 	`http://localhost:9080` :
 	`file://${__dirname}/index.html`;
@@ -31,9 +36,16 @@ function createWindow() {
 	 * Initial window options
 	 */
 
+	Object.assign(browserOptions, config.get('winBounds'));
 	mainWindow = new BrowserWindow(browserOptions);
 
-	mainWindow.loadURL(winURL)
+	mainWindow.loadURL(winURL);
+
+	mainWindow.once('ready-to-show', mainWindow.show);
+
+	mainWindow.on('close', () => {
+		config.set('winBounds', mainWindow.getBounds());
+	})
 
 	mainWindow.on('closed', () => {
 		mainWindow = null

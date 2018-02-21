@@ -108,14 +108,19 @@ button, input {
 	position: absolute;
 	width: 1rem;
 	height: 1rem;
-	background: #dddddd;
-	left: 68px;
-	top: 5px;
 	border-radius: 50%;
-	border: .5px solid darken(#dddddd, 5%);
+	left: 8px;
+	top: 5px;
+	// background: #0872dd;
+	// border: .5px solid darken(#0872dd, 5%);
 	&:hover {
-		background: #0872dd;
-		border: .5px solid darken(#0872dd, 5%);
+		background: lighten(#0872dd, 10%);
+	}
+}
+.window_blured {
+	.move_me {
+		background: #dddddd;
+		border: .5px solid darken(#dddddd, 5%);
 	}
 }
 </style>

@@ -89,6 +89,8 @@ export default {
 					if (target == null) {
 						if (self.config.webViews.length > 1) {
 							self.globalMethods.openWebControls();
+							$('#tb_url').focus();
+							$('#tb_url').select();
 						}
 					}
 					// remote.BrowserObservables.openTabs(self.config.webViews);
@@ -310,7 +312,8 @@ export default {
 		progressMeter = document.querySelector('#progress_meter');
 
 		if(webview === null) {
-			self.globalMethods.initNewWebView({url: self.config.homepage});
+			self.globalMethods.initNewWebView();
+			self.globalMethods.openWebControls();
 		}
 
 		window.onresize = self.globalMethods.doLayout;
