@@ -130,7 +130,7 @@ $web_controls_top_spacing: 15vh;
 			&:hover {
 				border: .5px solid #fff;
 				background-color: rgba(#cdcdcd, 0.5);
-				color: #000;
+				color: #333333;
 				cursor: pointer;
 			}
 		}
