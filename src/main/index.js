@@ -23,6 +23,7 @@ let browserOptions = {
 	frame: false,
 	show: false,
 	useContentSize: true
+	// vibrancy: 'ultra-dark'
 	// titleBarStyle: 'hidden',
 	// icon: './resources/icons/appIcon.png',
 };
@@ -56,7 +57,8 @@ function createWindow() {
 
 	mainWindow.on('blur', function() {
 		mainWindow.webContents.executeJavaScript(
-			"$('body').removeClass('window_focused').addClass('window_blured');"
+			"$('body').removeClass('window_focused').addClass('window_blured');" +
+			"$('#tb_url').focus();"
 		);
 	});
 

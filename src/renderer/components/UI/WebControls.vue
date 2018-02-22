@@ -1,7 +1,7 @@
 <template lang="html">
 <div id="web_controls" class="web_controls">
 	<div class="inner_web_controls webkit-draggable fullscreen d-flex w-100 flex-column align-items-center">
-		<h2 id="page_title" class="page_title flex-center mb-5 w-75">{{ config.webViews[config.currentWebViewIndex].title }}</h2>
+		<h2 id="page_title" class="page_title flex-center mb-5 w-75">{{ config.webView.title }}</h2>
 		<div id="tab_bar" class="tab_bar w-75 d-flex justify-content-center">
 			<span class="tab_card navbar-brand px-3" v-for="webview in config.webViews"
 				v-bind:class="webview.index === config.currentWebViewIndex ? 'current' : ''"
@@ -12,11 +12,14 @@
 		</div>
 		<div id="url_bar" class="url_bar w-75">
 			<form id="url_form" class="url_form">
-				<div class="">
-					<input id="tb_url" type="text" value="" class="form-control form-control-lg" v-model="config.requestUrl"
-					v-on:input="globalMethods.requestSearchSuggestions(config.requestUrl, true)">
-					<input type="submit" value="Go" hidden v-on:click.prevent="globalMethods.submitRequestUrl()">
-				</div>
+				<span id="tb_url_ghost" class="tb_url_ghost form-control form-control-lg"
+					v-on:click="presentUrlBar()">{{ config.webView.url }}</span>
+				<input id="tb_url" type="text" value="" class="form-control form-control-lg"
+					v-model="config.webView.url"
+					v-on:input="globalMethods.requestSearchSuggestions(config.requestUrl, true)"
+					v-on:focus="presentUrlBar()"
+					v-on:blur="presentGhost()">
+				<input type="submit" value="Go" hidden v-on:click.prevent="globalMethods.submitRequestUrl(config.webView.url)">
 			</form>
 		</div>
 	</div>
@@ -33,14 +36,28 @@ export default {
 	},
 	mounted() {
 		console.log('#web_controls mounted.');
-		let urlBar = $('#tb_url');
-		urlBar.focus();
-		urlBar.select();
+		this.tbUrlGotFocus();
 	},
 	methods: {
 		goToTabByIndex: function(webview) {
 			this.globalMethods.presentTabByIndex(webview.index);
 			this.globalMethods.closeWebControls();
+		},
+		tbUrlGotFocus: function() {
+			this.presentUrlBar();
+		},
+		presentUrlBar: function() {
+			let urlForm = $('#url_form');
+			let urlBar = $('#tb_url');
+			urlForm.removeClass('ghost_active');
+			urlBar.focus();
+			urlBar.select();
+		},
+		presentGhost: function() {
+			let urlForm = $('#url_form');
+			let urlBar = $('#tb_url');
+			urlBar.blur();
+			urlForm.addClass('ghost_active');
 		}
 	}
 }
@@ -54,13 +71,14 @@ $aqua_input_text_blur: #fff;
 $aqua_input_text_focus_border: #fff;
 
 $web_controls_top_spacing: 15vh;
+$web_controls_blur_opacity: .3;
 
 .web_controls {
 	color: $aqua_input_text_blur;
 	// background: rgba(0, 0, 0, 0.8);
 	:after {
 		content: "";
-		opacity: .4;
+		opacity: $web_controls_blur_opacity;
 		top: 0;
 		left: 0;
 		bottom: 0;
@@ -76,9 +94,10 @@ $web_controls_top_spacing: 15vh;
 	.url_bar {
 		.url_form {
 
-			input#tb_url[type=text] {
+			input#tb_url[type=text], #tb_url_ghost {
 				width: 100%;
 				outline: 0;
+				height: 41px;
 				font-size: 1.5rem;
 				text-align: center;
 				background-color: rgba(#cdcdcd, 0.5);
@@ -96,6 +115,32 @@ $web_controls_top_spacing: 15vh;
 					&:-moz-placeholder { color:transparent; } /* FF 4-18 */
 					&::-moz-placeholder { color:transparent; } /* FF 19+ */
 					&:-ms-input-placeholder { color:transparent; } /* IE 10+ */
+				}
+			}
+			input#tb_url[type=text] {
+				cursor: auto;
+			}
+
+			#tb_url_ghost {
+				font-weight: 400;
+				cursor: pointer;
+				display: none;
+				&:hover {
+					background-color: rgba($aqua_input_bg, 0.5);
+					border-color: rgba(#007dff, 1);
+					outline: 0;
+					box-shadow: 0 0 0 0.2rem rgba(#007dff, .25);
+				}
+			}
+
+			&.ghost_active {
+				#tb_url {
+					opacity: 0;
+					margin-top: -41px;
+					pointer-events: none;
+				}
+				#tb_url_ghost {
+					display: block;
 				}
 			}
 		}
@@ -132,6 +177,9 @@ $web_controls_top_spacing: 15vh;
 				background-color: rgba(#cdcdcd, 0.5);
 				color: #333333;
 				cursor: pointer;
+				* {
+					cursor: pointer;
+				}
 			}
 		}
 	}

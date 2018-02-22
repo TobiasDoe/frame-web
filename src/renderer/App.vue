@@ -17,11 +17,16 @@
 $webView_blur: .8rem;
 
 // Base Styles
+* {
+	-webkit-user-select:none;
+	cursor: default;
+}
+
 html, body {
 	height: 100%;
 	display: flex;
 
-	background-color: #f5f8fa;
+	background-color: transparent;
 	color: #464646;
 	font-family: 'Raleway', sans-serif;
 	font-weight: 100;

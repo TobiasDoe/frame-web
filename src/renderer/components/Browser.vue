@@ -22,7 +22,7 @@ const {
 } = remote;
 
 let body = null;
-let webview = null;
+// let webview = null;
 // let webViews = [];
 let webViewIdCount = -1;
 // let currentWebViewIndex = null;
@@ -43,11 +43,12 @@ export default {
 				requestUrl: "https://www.github.com",
 				webControlsOpen: false,
 				webViews: [],
+				webView: null,
 				currentWebViewIndex: null
 			},
 			globalMethods: {
 				toggleWebControls: function() {
-					if(self.config.webControlsOpen) {
+					if(self.config.webControlsOpen && $("#tb_url:focus").length > 0) {
 						self.globalMethods.closeWebControls();
 					} else {
 						self.globalMethods.openWebControls();
@@ -57,7 +58,7 @@ export default {
 					self.config.webControlsOpen = true;
 					body.addClass('modal_open');
 					body.addClass('web_controls_presented');
-					// $('#tb_url').focus();
+					$('#tb_url').focus();
 					// wv.requestSearchSuggestions(urlBar.value);
 				},
 				closeWebControls: function() {
@@ -67,7 +68,7 @@ export default {
 					// $('#tb_url').blur();
 				},
 				initNewWebView: function(target) {
-					let newWebView = $('<webview class="full-height" autosize></webview>');
+					let newWebView = $('<webview class="full-height" autosize webpreferences="scrollBounce" hidden></webview>');
 					let src = target != null ? target.url : 'file://';//self.config.homepage;
 					newWebView.attr("src", src);
 					webViewIdCount++;
@@ -76,15 +77,17 @@ export default {
 					$("#web_content").append(newWebView);
 					let currentWV = document.querySelector("#webview_" + webViewIdCount);
 					self.globalMethods.registerWebViewEventListeners(currentWV);
-					self.config.webViews.push({
+					let webViewObject = {
 						index: webViewIdCount,
 						webview: currentWV,
 						title: 'New Web Site',
-						icon: null
-					});
+						url: "",
+						icon: null // TODO: change temp settings to local files
+					};
+					self.config.webViews.push(webViewObject);
 					if (target == null ||  (target != null && target.disposition !== "background-tab")) {
 						self.globalMethods.presentTabByIndex(webViewIdCount);
-						webview = currentWV;
+						self.config.webView = webViewObject;
 					}
 					if (target == null) {
 						if (self.config.webViews.length > 1) {
@@ -105,7 +108,7 @@ export default {
 				registerWebViewEventListeners: function(regView) {
 					regView.addEventListener('load-commit', self.globalMethods.webviewHandler.handleNavigation);
 					regView.addEventListener('did-start-loading', self.globalMethods.webviewHandler.handleLoadStart);
-					regView.addEventListener('did-finish-load', self.globalMethods.webviewHandler.handleLoadCommit);
+					regView.addEventListener('did-finish-load', self.globalMethods.webviewHandler.handleLoadFinish);
 					regView.addEventListener('did-stop-loading', self.globalMethods.webviewHandler.handleLoadStop);
 					regView.addEventListener('new-window', self.globalMethods.handleNewWindowCall);
 					regView.addEventListener('page-title-updated', self.globalMethods.webviewHandler.handlePageTitle);
@@ -126,6 +129,7 @@ export default {
 						// }
 					},
 					handleLoadStart: function(event) {
+						// console.log("handleLoadStart", event);
 						progressBar.style.transition = 'opacity 0s';
 						progressBar.style['transition-delay'] = '0s';
 						progressBar.style.opacity = 1;
@@ -136,8 +140,26 @@ export default {
 							progressMeter.style.transition = '3s';
 						}, 200);
 					},
-					handleLoadCommit: function(event) {
-						console.log("handleLoadCommit", event);
+					handleLoadFinish: function(event) {
+						// console.log("handleLoadFinish", event);
+						console.log("handleLoadFinish", event.target.src);
+
+						let currentUrl = event.target.src;
+						// TODO: thats not right? what if the tab finishes in the background?
+						self.config.currentUrl = currentUrl;
+						self.config.requestUrl = currentUrl;
+
+						let targetWvIndex = $(event.target).attr('wv_index');
+						if (self.config.webControlsOpen && self.config.currentWebViewIndex == targetWvIndex && $("#tb_url:focus").length > 0) {
+							//
+						} else {
+							for (let wvIndex = 0; wvIndex < self.config.webViews.length; wvIndex++) {
+								if(self.config.webViews[wvIndex].index == targetWvIndex) {
+									self.config.webViews[wvIndex].url = currentUrl != "file:///" ? currentUrl : '';
+									break;
+								}
+							}
+						}
 					},
 					handleLoadStop: function() {
 						// urlBar['focus-value'] = webview.getURL();
@@ -156,27 +178,41 @@ export default {
 					},
 					handlePageTitle: function(event) {
 						console.log("handlePageTitle", event);
-						let wvIndex = $('#' + event.target.id).attr('wv_index');
-						self.config.webViews[wvIndex].title = event.title;
-						console.log(self.config.webViews);
+						let targetWvIndex = $(event.target).attr('wv_index');
+						for (let wvIndex = 0; wvIndex < self.config.webViews.length; wvIndex++) {
+							if(self.config.webViews[wvIndex].index == targetWvIndex) {
+								self.config.webViews[wvIndex].title = event.title;
+								break;
+							}
+						}
 					},
 					handleFavIcon: function(event) {
 						console.log("handleFavIcon", event);
-						let wvIndex = $('#' + event.target.id).attr('wv_index');
-						self.config.webViews[wvIndex].icon = event.favicons[0];
+						let targetWvIndex = $(event.target).attr('wv_index');
+						for (let wvIndex = 0; wvIndex < self.config.webViews.length; wvIndex++) {
+							if(self.config.webViews[wvIndex].index == targetWvIndex) {
+								self.config.webViews[wvIndex].icon = event.favicons[0];
+								break;
+							}
+						}
 					}
 				},
 				presentTabByIndex: function(tabIndex) {
 					for(let wvIndex = 0; wvIndex < self.config.webViews.length; wvIndex++) {
 						let currWebView = self.config.webViews[wvIndex];
 						if(currWebView.index !== tabIndex) {
-							$(currWebView.webview).hide();
+							if($(currWebView.webview).is(":visible")) {
+								$(currWebView.webview).hide();
+							}
 							$(currWebView.webview).attr("active", false);
 						} else {
 							$(currWebView.webview).show();
 							$(currWebView.webview).attr("active", true);
-							self.config.currentWebViewIndex = currWebView.index;
-							webview = currWebView.webview;
+							self.config.currentWebViewIndex = tabIndex;
+							self.config.webView = currWebView;
+							if (self.config.webControlsOpen) {
+								$('#tb_url').select();
+							}
 						}
 					}
 					self.globalMethods.doLayout();
@@ -188,13 +224,11 @@ export default {
 					for(wvIndex = 0; wvIndex < self.config.webViews.length; wvIndex++) {
 						currWebView = self.config.webViews[wvIndex];
 						if(currWebView.index === tabIndex) {
+							self.globalMethods.presentTabByIndex(self.globalMethods.findPrevTabIndex());
+							currWebView.webview.remove();
+							self.config.webViews.splice(wvIndex, 1);
 							break;
 						}
-					}
-					if(currWebView != null) {
-						self.globalMethods.presentTabByIndex(self.globalMethods.findPrevTabIndex());
-						currWebView.webview.remove();
-						self.config.webViews.splice(wvIndex, 1);
 					}
 					// remote.BrowserObservables.openTabs(self.config.webViews);
 				},
@@ -236,14 +270,15 @@ export default {
 				},
 				navigateTo: function(url) {
 					// resetExitedState();
-					webview.loadURL(url);
+					self.config.webView.webview.loadURL(url);
 					self.config.currentUrl = url;
 					self.config.requestUrl = url;
 					self.globalMethods.closeWebControls();
 				},
-				submitRequestUrl: function() {
+				submitRequestUrl: function(url) {
 					console.log('submitRequestUrl');
-					let requestURL = self.config.requestUrl.trim();
+					// let requestURL = self.config.requestUrl.trim();
+					let requestURL = url.trim();
 					if (requestURL.indexOf('.') !== -1) {
 						let httpFound = requestURL.indexOf('http://') !== -1 ? true : requestURL.indexOf('https://') !== -1 ? true : false;
 						if (!httpFound && requestURL.indexOf('file://') === -1) {
@@ -291,15 +326,17 @@ export default {
 					// webViewBlocks.height(mainHeight);
 					//
 					progressBar.style.width = mainWidth + 'px';
-					// let wc = webview.getWebContents();
-					// if(wc != null) {
-					// 	wc.setSize({
-					// 		normal: {
-					// 			width: mainWidth,
-					// 			height: mainHeight
-					// 		}
-					// 	});
-					// }
+					if (self.config.webView.webview.getWebContents != undefined) {
+						let wc = self.config.webView.webview.getWebContents();
+						if(wc != null) {
+							wc.setSize({
+								normal: {
+									width: mainWidth,
+									height: mainHeight
+								}
+							});
+						}
+					}
 				}
 			}
 		};
@@ -311,12 +348,15 @@ export default {
 		progressBar = document.querySelector('#progress_bar');
 		progressMeter = document.querySelector('#progress_meter');
 
-		if(webview === null) {
+		// debugger;
+		if(self.config.webView == null || self.config.webView.webview === null) {
+			// self.globalMethods.initNewWebView({ url: self.config.homepage }); //Start With Homepage
 			self.globalMethods.initNewWebView();
 			self.globalMethods.openWebControls();
 		}
 
 		window.onresize = self.globalMethods.doLayout;
+		// self.globalMethods.doLayout()
 
 // -----------------------------------------------------------
 // -----------------------MenuItemCalls-----------------------
@@ -332,16 +372,16 @@ export default {
 					// $("#web_content").removeClass('expose');
 					break;
 				case 'reloadSite':
-					webview.reload();
+					self.config.webView.webview.reload();
 					break;
 				case 'goBack':
-					if (webview.canGoBack()) {
-						webview.goBack();
+					if (self.config.webView.webview.canGoBack()) {
+						self.config.webView.webview.goBack();
 					}
 					break;
 				case 'goForward':
-					if (webview.canGoForward()) {
-						webview.goForward();
+					if (self.config.webView.webview.canGoForward()) {
+						self.config.webView.webview.goForward();
 					}
 					break;
 				case 'quitApp':
