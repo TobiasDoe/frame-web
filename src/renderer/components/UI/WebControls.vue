@@ -1,6 +1,6 @@
 <template lang="html">
 <div id="web_controls" class="web_controls">
-	<div class="inner_web_controls webkit-draggable fullscreen d-flex w-100 flex-column align-items-center">
+	<div class="inner_web_controls fullscreen d-flex w-100 flex-column align-items-center">
 		<h2 id="page_title" class="page_title flex-center mb-5 w-75">{{ config.webView.title }}</h2>
 		<div id="tab_bar" class="tab_bar w-75 d-flex justify-content-center">
 			<span class="tab_card navbar-brand px-3" v-for="webview in config.webViews"
@@ -13,7 +13,7 @@
 		<div id="url_bar" class="url_bar w-75">
 			<form id="url_form" class="url_form">
 				<span id="tb_url_ghost" class="tb_url_ghost form-control form-control-lg"
-					v-on:click="presentUrlBar()">{{ config.webView.url }}</span>
+					v-on:click="presentUrlBar()">{{ config.webView.url != '' ? config.webView.url : 'Search or enter website name' }}</span>
 				<input id="tb_url" type="text" value="" class="form-control form-control-lg"
 					v-model="config.webView.url"
 					v-on:input="globalMethods.requestSearchSuggestions(config.requestUrl, true)"
@@ -100,36 +100,51 @@ $web_controls_blur_opacity: .3;
 				height: 41px;
 				font-size: 1.5rem;
 				text-align: center;
-				background-color: rgba(#cdcdcd, 0.5);
+
+				background-color: rgba(#cdcdcd, 0.4);
+				transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+
+				&::selection {
+					background: rgba(#0192d9, 0.3);
+				}
 
 				&:focus {
-					background-color: $aqua_input_bg;
-					color: $aqua_input_text;
-					// text-align: left;
-
-					border-color: #fb8800;
 					outline: 0;
-					box-shadow: 0 0 0 0.2rem rgba(#fb8800, .25);
+					overflow: hidden;
+					color: $aqua_input_text;
+
+					background-color: rgba(#eeeeee, 0.55);
+
+					border-color: #f43b47;
+					box-shadow: 0 0 10px 2px rgba(#453a94, 0.7);
 
 					&::-webkit-input-placeholder { color:transparent; }
-					&:-moz-placeholder { color:transparent; } /* FF 4-18 */
-					&::-moz-placeholder { color:transparent; } /* FF 19+ */
-					&:-ms-input-placeholder { color:transparent; } /* IE 10+ */
 				}
 			}
 			input#tb_url[type=text] {
 				cursor: auto;
+				background-color: rgba(#cdcdcd, 0.5);
+
+				border-color: rgba(#ec545e, 1);
+				box-shadow: 0 0 5px 2px rgba(#655bad, 0.7);
 			}
 
 			#tb_url_ghost {
 				font-weight: 400;
 				cursor: pointer;
 				display: none;
+				// opacity: 0;
+				overflow: hidden;
+				text-overflow: ellipsis;
+
+				border-color: #dbdbdb;
 				&:hover {
-					background-color: rgba($aqua_input_bg, 0.5);
-					border-color: rgba(#007dff, 1);
 					outline: 0;
-					box-shadow: 0 0 0 0.2rem rgba(#007dff, .25);
+
+					background-color: rgba(#cdcdcd, 0.5);
+
+					border-color: rgba(#ebebeb, 1);
+					box-shadow: 0 0 6px 0px rgba(#000, .4);
 				}
 			}
 
@@ -141,6 +156,7 @@ $web_controls_blur_opacity: .3;
 				}
 				#tb_url_ghost {
 					display: block;
+					// opacity: 1;
 				}
 			}
 		}

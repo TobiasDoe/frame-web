@@ -22,9 +22,10 @@ let browserOptions = {
 	minHeight: 250,
 	frame: false,
 	show: false,
-	useContentSize: true
+	useContentSize: true,
+	titleBarStyle: 'hidden'
+	// titleBarStyle: 'customButtonsOnHover'
 	// vibrancy: 'ultra-dark'
-	// titleBarStyle: 'hidden',
 	// icon: './resources/icons/appIcon.png',
 };
 

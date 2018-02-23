@@ -44,7 +44,29 @@ export default {
 				webControlsOpen: false,
 				webViews: [],
 				webView: null,
-				currentWebViewIndex: null
+				currentWebViewIndex: null,
+				bookmarks: [
+					{
+						title: 'apple.com',
+						url: 'https://www.apple.com',
+						icon: null
+					},
+					{
+						title: 'google.com',
+						url: 'https://www.google.com/?gfe_rd=cr&gws_rd=cr',
+						icon: null
+					},
+					{
+						title: 'youtube.com',
+						url: 'https://www.youtube.com',
+						icon: null
+					},
+					{
+						title: 'facebook.com',
+						url: 'https://www.facebook.com',
+						icon: null
+					}
+				]
 			},
 			globalMethods: {
 				toggleWebControls: function() {
@@ -66,9 +88,12 @@ export default {
 					body.removeClass('modal_open');
 					body.removeClass('web_controls_presented');
 					// $('#tb_url').blur();
+
+					$(self.config.webView.webview).blur();
+					$(self.config.webView.webview).focus();
 				},
 				initNewWebView: function(target) {
-					let newWebView = $('<webview class="full-height" autosize webpreferences="scrollBounce" hidden></webview>');
+					let newWebView = $('<webview class="full-height" autosize webpreferences=""></webview>');
 					let src = target != null ? target.url : 'file://';//self.config.homepage;
 					newWebView.attr("src", src);
 					webViewIdCount++;
@@ -107,14 +132,13 @@ export default {
 				},
 				registerWebViewEventListeners: function(regView) {
 					regView.addEventListener('load-commit', self.globalMethods.webviewHandler.handleNavigation);
+					regView.addEventListener('will-navigate', self.globalMethods.webviewHandler.handleWillNavigate);
 					regView.addEventListener('did-start-loading', self.globalMethods.webviewHandler.handleLoadStart);
 					regView.addEventListener('did-finish-load', self.globalMethods.webviewHandler.handleLoadFinish);
 					regView.addEventListener('did-stop-loading', self.globalMethods.webviewHandler.handleLoadStop);
 					regView.addEventListener('new-window', self.globalMethods.handleNewWindowCall);
 					regView.addEventListener('page-title-updated', self.globalMethods.webviewHandler.handlePageTitle);
 					regView.addEventListener('page-favicon-updated', self.globalMethods.webviewHandler.handleFavIcon);
-
-
 					// regView.addEventListener('close', handleExit);
 					// regView.addEventListener('did-fail-load', handleLoadAbort);
 					// regView.addEventListener('did-get-redirect-request', handleLoadRedirect);
@@ -195,6 +219,16 @@ export default {
 								break;
 							}
 						}
+					},
+					handleWillNavigate: function(event) {
+						console.log("handleWillNavigate", event);
+						// let targetWvIndex = $(event.target).attr('wv_index');
+						// for (let wvIndex = 0; wvIndex < self.config.webViews.length; wvIndex++) {
+						// 	if(self.config.webViews[wvIndex].index == targetWvIndex) {
+						// 		// self.config.webViews[wvIndex].url = event.favicons[0];
+						// 		break;
+						// 	}
+						// }
 					}
 				},
 				presentTabByIndex: function(tabIndex) {
@@ -369,6 +403,7 @@ export default {
 					break;
 				case 'closeWebControls':
 					self.globalMethods.closeWebControls();
+					// self.globalMethods.toggleWebControls();
 					// $("#web_content").removeClass('expose');
 					break;
 				case 'reloadSite':
@@ -403,6 +438,36 @@ export default {
 						menuItemCall("quitApp");
 					}
 					break;
+				case 'goToBookMarkNr0':
+					self.globalMethods.navigateTo(self.config.bookmarks[0].url);
+					break;
+				case 'goToBookMarkNr1':
+					self.globalMethods.navigateTo(self.config.bookmarks[1].url);
+					break;
+				case 'goToBookMarkNr2':
+					self.globalMethods.navigateTo(self.config.bookmarks[2].url);
+					break;
+				case 'goToBookMarkNr3':
+					self.globalMethods.navigateTo(self.config.bookmarks[3].url);
+					break;
+				case 'goToBookMarkNr4':
+					self.globalMethods.navigateTo(self.config.bookmarks[4].url);
+					break;
+				case 'goToBookMarkNr5':
+					self.globalMethods.navigateTo(self.config.bookmarks[5].url);
+					break;
+				case 'goToBookMarkNr6':
+					self.globalMethods.navigateTo(self.config.bookmarks[6].url);
+					break;
+				case 'goToBookMarkNr7':
+					self.globalMethods.navigateTo(self.config.bookmarks[7].url);
+					break;
+				case 'goToBookMarkNr8':
+					self.globalMethods.navigateTo(self.config.bookmarks[8].url);
+					break;
+				case 'goToBookMarkNr9':
+					self.globalMethods.navigateTo(self.config.bookmarks[9].url);
+					break;
 				case 'tabExpose':
 					// $("#web_content").addClass('expose');
 					break;
@@ -422,14 +487,6 @@ export default {
 						}
 					},
 					{
-						label: 'Open Tab Exposé',
-						accelerator: 'CmdOrCtrl+E',
-						role: 'tabExpose',
-						click: function(menuItem, currentWindow) {
-							menuItemCall('tabExpose');
-						}
-					},
-					{
 						label: 'Next Tab',
 						accelerator: 'Ctrl+tab',
 						role: 'nextTab',
@@ -443,6 +500,18 @@ export default {
 						role: 'closeTab',
 						click: function(menuItem, currentWindow) {
 							menuItemCall('closeTab');
+						}
+					},
+					{
+						type: 'separator'
+					},
+					{
+						label: 'Quick Open Tab Controls...',
+						accelerator: 'CmdOrCtrl+E',
+						role: 'tabExpose',
+						click: function(menuItem, currentWindow) {
+							// menuItemCall('tabExpose');
+							menuItemCall('openWebControls');
 						}
 					},
 					{
@@ -561,6 +630,10 @@ export default {
 				]
 			},
 			{
+				label: 'Bookmarks',
+				submenu: []
+			},
+			{
 				role: 'window',
 				submenu: [{
 						role: 'minimize'
@@ -625,7 +698,7 @@ export default {
 				]
 			});
 			// Window menu.
-			template[4].submenu = [{
+			template[5].submenu = [{
 					label: 'Minimize',
 					accelerator: 'CmdOrCtrl+M',
 					role: 'minimize'
@@ -644,6 +717,23 @@ export default {
 			];
 		}
 
+		// Fill Bookmarks Menu
+		for (var bookmarkIndex = 0; bookmarkIndex < self.config.bookmarks.length; bookmarkIndex++) {
+			let bookmark = self.config.bookmarks[bookmarkIndex];
+			let acceleratorIndex = bookmarkIndex < 9 ? bookmarkIndex + 1 : 0;
+			let call = 'goToBookMarkNr' + bookmarkIndex;
+			template[4].submenu.push(
+				{
+					label: bookmark.title,
+					accelerator: 'CmdOrCtrl+' + acceleratorIndex,
+					role: call,
+					click: function(menuItem, currentWindow) {
+						menuItemCall(call);
+					}
+				}
+			);
+		}
+
 		let menu = menu = Menu.buildFromTemplate(template);
 		Menu.setApplicationMenu(menu);
 	},
@@ -659,7 +749,7 @@ export default {
 #progress_bar {
 	position: absolute;
 	display: block;
-	width: 99.85%;
+	width: 99.85% !important;
 	height: 2px;
 	left: 0;
 	top: 0;
@@ -674,6 +764,7 @@ export default {
 		width: 0px;
 		height: 2px;
 		background: #fb8800;
+		background-image: linear-gradient(to right, #fee140 0%, #fa709a 100%);
 		transition: width 10s ease-in-out;
 	}
 }

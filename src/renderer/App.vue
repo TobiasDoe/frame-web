@@ -111,21 +111,26 @@ button, input {
 	z-index: 1000;
 	display: inline-block;
 	position: absolute;
-	width: 1rem;
-	height: 1rem;
-	border-radius: 50%;
-	left: 8px;
-	top: 5px;
+	height: 1.8rem;
+	width: 100vw;
+	pointer-events: none;
+	left: 0;
+	top: 0;
+	// background: green;
+	// border-radius: 50%;
+	// width: 1rem;
+	// left: 8px;
+	// top: 5px;
 	// background: #0872dd;
 	// border: .5px solid darken(#0872dd, 5%);
-	&:hover {
-		background: lighten(#0872dd, 10%);
-	}
+	// &:hover {
+	// 	background: lighten(#0872dd, 10%);
+	// }
 }
 .window_blured {
-	.move_me {
-		background: #dddddd;
-		border: .5px solid darken(#dddddd, 5%);
-	}
+	// .move_me {
+	// 	background: #dddddd;
+	// 	border: .5px solid darken(#dddddd, 5%);
+	// }
 }
 </style>
