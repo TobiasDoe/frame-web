@@ -34,10 +34,8 @@ html, body {
 
 	font-size: 12px;
 
-	background-image: linear-gradient(60deg, #3d3393 0%, #2b76b9 37%, #2cacd1 65%, #35eb93 100%);
 	background-image: linear-gradient(60deg, #625EB1 0%, #1D8FE1 37%, #22E1FF 65%, #5bf0a8 100%);
-	// background-image: linear-gradient(-60deg, #16a085 0%, #f4d03f 100%);
-	// background-image: linear-gradient(-20deg, #2b5876 0%, #4e4376 100%);
+	// background-image: linear-gradient(60deg, #3d3393 0%, #2b76b9 37%, #2cacd1 65%, #35eb93 100%);
 	button {
 		cursor: pointer;
 	}
