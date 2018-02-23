@@ -47,23 +47,28 @@ export default {
 				currentWebViewIndex: null,
 				bookmarks: [
 					{
-						title: 'apple.com',
+						title: 'Apple',
 						url: 'https://www.apple.com',
 						icon: null
 					},
 					{
-						title: 'google.com',
+						title: 'Google',
 						url: 'https://www.google.com/?gfe_rd=cr&gws_rd=cr',
 						icon: null
 					},
 					{
-						title: 'youtube.com',
+						title: 'Youtube',
 						url: 'https://www.youtube.com',
 						icon: null
 					},
 					{
-						title: 'facebook.com',
+						title: 'Facebook',
 						url: 'https://www.facebook.com',
+						icon: null
+					},
+					{
+						title: 'GitHub',
+						url: 'https://www.github.com',
 						icon: null
 					}
 				]
@@ -105,7 +110,7 @@ export default {
 					let webViewObject = {
 						index: webViewIdCount,
 						webview: currentWV,
-						title: 'New Web Site',
+						title: 'New Tab',
 						url: "",
 						icon: null // TODO: change temp settings to local files
 					};
@@ -145,12 +150,20 @@ export default {
 				},
 				webviewHandler: {
 					handleNavigation: function(event) {
-						// TODO: make urlbar logic useable again!
-						// urlBar['focus-value'] = event.url;
-						// urlBar['blur-value'] = event.url;
-						// if (urlBar !== document.activeElement) {
-						// 	urlBar.value = event.url;
-						// }
+						console.log("handleNavigation", event);
+						if(event.isMainFrame) {
+							// TODO: thats not right? what if the tab finishes in the background?
+							self.config.currentUrl = event.url;
+							self.config.requestUrl = event.url;
+
+							let targetWvIndex = $(event.target).attr('wv_index');
+							for (let wvIndex = 0; wvIndex < self.config.webViews.length; wvIndex++) {
+								if(self.config.webViews[wvIndex].index == targetWvIndex) {
+									self.config.webViews[wvIndex].url = event.url;
+									break;
+								}
+							}
+						}
 					},
 					handleLoadStart: function(event) {
 						// console.log("handleLoadStart", event);
@@ -165,25 +178,7 @@ export default {
 						}, 200);
 					},
 					handleLoadFinish: function(event) {
-						// console.log("handleLoadFinish", event);
 						console.log("handleLoadFinish", event.target.src);
-
-						let currentUrl = event.target.src;
-						// TODO: thats not right? what if the tab finishes in the background?
-						self.config.currentUrl = currentUrl;
-						self.config.requestUrl = currentUrl;
-
-						let targetWvIndex = $(event.target).attr('wv_index');
-						if (self.config.webControlsOpen && self.config.currentWebViewIndex == targetWvIndex && $("#tb_url:focus").length > 0) {
-							//
-						} else {
-							for (let wvIndex = 0; wvIndex < self.config.webViews.length; wvIndex++) {
-								if(self.config.webViews[wvIndex].index == targetWvIndex) {
-									self.config.webViews[wvIndex].url = currentUrl != "file:///" ? currentUrl : '';
-									break;
-								}
-							}
-						}
 					},
 					handleLoadStop: function() {
 						// urlBar['focus-value'] = webview.getURL();
@@ -746,6 +741,21 @@ export default {
 </script>
 
 <style lang="scss">
+
+// #web_content {
+//
+// 	webview {
+// 		opacity: .8;
+// 		transition: opacity .25s ease-in-out 0s, filter .25s ease-in-out .05s;
+// 		// filter: blur(10rem);
+//
+// 		&.initial {
+// 			// filter: blur(0);
+// 			opacity: 1;
+// 		}
+// 	}
+// }
+
 #progress_bar {
 	position: absolute;
 	display: block;
@@ -764,7 +774,7 @@ export default {
 		width: 0px;
 		height: 2px;
 		background: #fb8800;
-		background-image: linear-gradient(to right, #fee140 0%, #fa709a 100%);
+		background-image: linear-gradient(to right, #07eb7d 0%, #fb8800 40%, #fb8800 60%, #fb4d82 100%);
 		transition: width 10s ease-in-out;
 	}
 }
