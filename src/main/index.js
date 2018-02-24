@@ -1,7 +1,7 @@
-import {
-	app,
-	BrowserWindow
-} from 'electron';
+import { app, BrowserWindow } from 'electron';
+import { autoUpdater } from "electron-updater"
+
+// const { appUpdater } = require('./autoupdater');
 
 const Config = require('electron-config');
 const config = new Config();
@@ -68,6 +68,8 @@ function createWindow() {
 			"$('body').removeClass('window_blured').addClass('window_focused');"
 		);
 	});
+
+	autoUpdater.checkForUpdatesAndNotify();
 }
 
 app.on('ready', createWindow);
