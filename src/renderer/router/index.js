@@ -7,7 +7,7 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'landing-page',
+      name: 'browser-frame',
       component: require('@/components/Browser').default
     },
     {

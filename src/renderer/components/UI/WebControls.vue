@@ -87,6 +87,7 @@ $web_controls_blur_opacity: .3;
 		position: absolute;
 		background-image: linear-gradient(60deg, #3d3393 0%, #2b76b9 37%, #2cacd1 65%, #35eb93 100%);
 	}
+
 	.inner_web_controls {
 		padding-top: $web_controls_top_spacing;
 		z-index: 1;

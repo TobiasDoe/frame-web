@@ -99,7 +99,7 @@ export default {
 				},
 				initNewWebView: function(target) {
 					let newWebView = $('<webview class="full-height" autosize webpreferences=""></webview>');
-					let src = target != null ? target.url : 'file://';//self.config.homepage;
+					let src = target != null ? target.url : 'file://'; // self.config.homepage;
 					newWebView.attr("src", src);
 					webViewIdCount++;
 					newWebView.attr("id", "webview_" + webViewIdCount);
