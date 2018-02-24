@@ -3,9 +3,10 @@
   "version": "0.0.1",
   "author": "Tobias <developer@onmyown.at>",
   "description": "A KeyBoard ShortCut based WebBrowser with minimal visual UI.",
-  "license": null,
+  "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
+    "dist": "build",
     "build": "node .electron-vue/build.js && electron-builder",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
@@ -44,6 +45,7 @@
       "icon": "build/icons/icon.icns"
     },
     "win": {
+      "target": "NSIS",
       "icon": "build/icons/icon.ico"
     },
     "linux": {
@@ -77,10 +79,11 @@
     "css-loader": "^0.28.4",
     "del": "^3.0.0",
     "devtron": "^1.4.0",
-    "electron": "^1.7.5",
-    "electron-builder": "^19.19.1",
+    "electron": "latest",
+    "electron-builder": "latest",
     "electron-debug": "^1.4.0",
     "electron-devtools-installer": "^2.2.0",
+    "electron-updater": "^2.20.1",
     "extract-text-webpack-plugin": "^3.0.0",
     "file-loader": "^0.11.2",
     "html-webpack-plugin": "^2.30.1",
