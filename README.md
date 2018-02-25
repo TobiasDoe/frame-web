@@ -1,13 +1,23 @@
 # frame
 
+![logo]
+
+[logo]: https://github.com/TobiasDoe/frame-web/blob/master/build/icons/256x256.png "frame.icns"
+
 > A KeyBoard ShortCut based WebBrowser with minimal visual UI.
 
-> ## ShortCuts
-> | ShortCut  | Action
-> | --------- |---------
-> | CMD+T     | New Tab
-> | CMD+L     | Open Controls
-> | CTRL+TAB  | Next Tab
+### Keyboard shortcuts
+
+Description            | Keys
+-----------------------| -----------------------
+New Tab                | <kbd>Cmd</kbd> <kbd>T</kbd>
+Next Tab               | <kbd>Ctrl</kbd> <kbd>Tab</kbd>
+Close Tab               | <kbd>Cmd</kbd> <kbd>W</kbd>
+Open Web Controls      | <kbd>Cmd</kbd> <kbd>L</kbd> or <kbd>Cmd</kbd> <kbd>E</kbd>
+Preferences            | <kbd>Cmd</kbd> <kbd>,</kbd>
+
+
+---
 
 #### Build Setup
 
