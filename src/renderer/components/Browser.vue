@@ -429,8 +429,17 @@ export default {
 					// menuItemCall("quitApp");
 					if(self.config.webViews.length > 1){
 						self.globalMethods.closeTabByIndex(self.config.currentWebViewIndex);
+						self.globalMethods.closeWebControls();
 					} else {
 						menuItemCall("quitApp");
+					}
+					break;
+				case 'viewDevTools':
+					console.log('View Dev Tools');
+					if(self.config.webView.webview.isDevToolsOpened() && self.config.webView.webview.isDevToolsFocused())
+						self.config.webView.webview.closeDevTools();
+					else {
+						self.config.webView.webview.openDevTools();
 					}
 					break;
 				case 'goToBookMarkNr0':
@@ -580,9 +589,6 @@ export default {
 						}
 					},
 					{
-						type: 'separator'
-					},
-					{
 						label: 'Go Back',
 						accelerator: 'CmdOrCtrl+Left',
 						role: 'goBack',
@@ -599,7 +605,18 @@ export default {
 						}
 					},
 					{
+						type: 'separator'
+					},
+					{
 						role: 'forcereload'
+					},
+					{
+						label: 'View Dev Tools',
+						accelerator: 'CmdOrCtrl+Alt+I',
+						role: 'viewdevtools',
+						click: function(menuItem, currentWindow) {
+							menuItemCall('viewDevTools');
+						}
 					},
 					{
 						role: 'toggledevtools'
