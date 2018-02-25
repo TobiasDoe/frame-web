@@ -1,5 +1,4 @@
 import { app, BrowserWindow } from 'electron';
-import { autoUpdater } from "electron-updater"
 
 // const { appUpdater } = require('./autoupdater');
 
@@ -22,10 +21,9 @@ let browserOptions = {
 	minHeight: 250,
 	frame: false,
 	show: false,
-	useContentSize: true,
-	titleBarStyle: 'hidden'
+	useContentSize: true
+	// vibrancy: 'light'
 	// titleBarStyle: 'customButtonsOnHover'
-	// vibrancy: 'ultra-dark'
 	// icon: './resources/icons/appIcon.png',
 };
 
@@ -69,7 +67,7 @@ function createWindow() {
 		);
 	});
 
-	autoUpdater.checkForUpdatesAndNotify();
+	// autoUpdater.checkForUpdatesAndNotify();
 }
 
 app.on('ready', createWindow);
@@ -86,6 +84,8 @@ app.on('activate', () => {
 	}
 });
 
+
+// TODO: DO THIS!!!
 /**
  * Auto Updater
  *
@@ -95,13 +95,15 @@ app.on('activate', () => {
  */
 
 /*
-import { autoUpdater } from 'electron-updater'
+import { autoUpdater } from 'electron-updater';
 
 autoUpdater.on('update-downloaded', () => {
-  autoUpdater.quitAndInstall()
-})
+	autoUpdater.quitAndInstall();
+});
 
 app.on('ready', () => {
-  if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates()
-})
- */
+	if (process.env.NODE_ENV === 'production') {
+		autoUpdater.checkForUpdates()
+	}
+});
+*/
