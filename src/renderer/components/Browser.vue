@@ -98,7 +98,7 @@ export default {
 					$(self.config.webView.webview).focus();
 				},
 				initNewWebView: function(target) {
-					let newWebView = $('<webview class="full-height" autosize webpreferences=""></webview>');
+					let newWebView = $('<webview class="" autosize webpreferences=""></webview>');
 					let src = target != null ? target.url : 'file://'; // self.config.homepage;
 					newWebView.attr("src", src);
 					webViewIdCount++;
@@ -118,6 +118,7 @@ export default {
 					if (target == null ||  (target != null && target.disposition !== "background-tab")) {
 						self.globalMethods.presentTabByIndex(webViewIdCount);
 						self.config.webView = webViewObject;
+						$(self.config.webView.webview).addClass('active');
 					}
 					if (target == null) {
 						if (self.config.webViews.length > 1) {
@@ -144,6 +145,7 @@ export default {
 					regView.addEventListener('new-window', self.globalMethods.handleNewWindowCall);
 					regView.addEventListener('page-title-updated', self.globalMethods.webviewHandler.handlePageTitle);
 					regView.addEventListener('page-favicon-updated', self.globalMethods.webviewHandler.handleFavIcon);
+					regView.addEventListener('did-change-theme-color', self.globalMethods.webviewHandler.handleThemeColor);
 					// regView.addEventListener('close', handleExit);
 					// regView.addEventListener('did-fail-load', handleLoadAbort);
 					// regView.addEventListener('did-get-redirect-request', handleLoadRedirect);
@@ -215,6 +217,16 @@ export default {
 							}
 						}
 					},
+					handleThemeColor: function(event) {
+						console.log("handleThemeColor", event);
+						let targetWvIndex = $(event.target).attr('wv_index');
+						for (let wvIndex = 0; wvIndex < self.config.webViews.length; wvIndex++) {
+							if(self.config.webViews[wvIndex].index == targetWvIndex) {
+								// self.config.webViews[wvIndex].themeColor = event.favicons[0];
+								break;
+							}
+						}
+					},
 					handleWillNavigate: function(event) {
 						console.log("handleWillNavigate", event);
 						// let targetWvIndex = $(event.target).attr('wv_index');
@@ -230,12 +242,10 @@ export default {
 					for(let wvIndex = 0; wvIndex < self.config.webViews.length; wvIndex++) {
 						let currWebView = self.config.webViews[wvIndex];
 						if(currWebView.index !== tabIndex) {
-							if($(currWebView.webview).is(":visible")) {
-								$(currWebView.webview).hide();
-							}
+							$(currWebView.webview).removeClass('active');
 							$(currWebView.webview).attr("active", false);
 						} else {
-							$(currWebView.webview).show();
+							$(currWebView.webview).addClass('active');
 							$(currWebView.webview).attr("active", true);
 							self.config.currentWebViewIndex = tabIndex;
 							self.config.webView = currWebView;
@@ -759,19 +769,39 @@ export default {
 
 <style lang="scss">
 
-// #web_content {
-//
-// 	webview {
-// 		opacity: .8;
-// 		transition: opacity .25s ease-in-out 0s, filter .25s ease-in-out .05s;
-// 		// filter: blur(10rem);
-//
-// 		&.initial {
-// 			// filter: blur(0);
-// 			opacity: 1;
-// 		}
-// 	}
-// }
+#web_content {
+	display: inline-block;
+	webview {
+		visibility: hidden;
+		position: absolute;
+		width: 100vw;
+		height: 100vh;
+		top: 0;
+		left: 0;
+
+		&.active {
+			visibility: visible;
+		}
+	}
+}
+
+body.web_controls_presented {
+	#web_content {
+
+		webview {
+			// visibility: hidden;
+			position: absolute;
+			top: 0;
+			left: 0;
+
+			&.active {
+				width: 100vw;
+				height: 100vh;
+				visibility: visible;
+			}
+		}
+	}
+}
 
 #progress_bar {
 	position: absolute;
