@@ -21,10 +21,13 @@ let browserOptions = {
 	minHeight: 250,
 	frame: false,
 	show: false,
-	useContentSize: true
-	// vibrancy: 'light'
+	useContentSize: true,
+	backgroundColor: '#1D8FE1',
+	titleBarStyle: 'hidden',
+	title: 'frame'
+	// vibrancy: 'medium-light'
 	// titleBarStyle: 'customButtonsOnHover'
-	// icon: './resources/icons/appIcon.png',
+	// icon: './build/icons/icon.icns'
 };
 
 const winURL = process.env.NODE_ENV === 'development' ?

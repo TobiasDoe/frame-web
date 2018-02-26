@@ -98,7 +98,7 @@ export default {
 					$(self.config.webView.webview).focus();
 				},
 				initNewWebView: function(target) {
-					let newWebView = $('<webview class="" autosize webpreferences=""></webview>');
+					let newWebView = $('<webview class="fresh_view" autosize webpreferences=""></webview>');
 					let src = target != null ? target.url : 'file://'; // self.config.homepage;
 					newWebView.attr("src", src);
 					webViewIdCount++;
@@ -181,6 +181,7 @@ export default {
 					},
 					handleLoadFinish: function(event) {
 						console.log("handleLoadFinish", event.target.src);
+						$(event.target).removeClass('fresh_view');
 					},
 					handleLoadStop: function() {
 						// urlBar['focus-value'] = webview.getURL();
@@ -365,17 +366,17 @@ export default {
 					// webViewBlocks.height(mainHeight);
 					//
 					progressBar.style.width = mainWidth + 'px';
-					if (self.config.webView.webview.getWebContents != undefined) {
-						let wc = self.config.webView.webview.getWebContents();
-						if(wc != null) {
-							wc.setSize({
-								normal: {
-									width: mainWidth,
-									height: mainHeight
-								}
-							});
-						}
-					}
+					// if (self.config.webView.webview.getWebContents != undefined) {
+					// 	let wc = self.config.webView.webview.getWebContents();
+					// 	if(wc != null) {
+					// 		wc.setSize({
+					// 			normal: {
+					// 				width: mainWidth,
+					// 				height: mainHeight
+					// 			}
+					// 		});
+					// 	}
+					// }
 				}
 			}
 		};
@@ -770,9 +771,9 @@ export default {
 <style lang="scss">
 
 #web_content {
-	display: inline-block;
 	webview {
 		visibility: hidden;
+		z-index: 0;
 		position: absolute;
 		width: 100vw;
 		height: 100vh;
@@ -780,25 +781,12 @@ export default {
 		left: 0;
 
 		&.active {
-			visibility: visible;
+			z-index: 1 !important;
+			visibility: visible !important;
 		}
-	}
-}
-
-body.web_controls_presented {
-	#web_content {
-
-		webview {
-			// visibility: hidden;
-			position: absolute;
-			top: 0;
-			left: 0;
-
-			&.active {
-				width: 100vw;
-				height: 100vh;
-				visibility: visible;
-			}
+		&.fresh_view {
+			z-index: 0;
+			visibility: visible;
 		}
 	}
 }
