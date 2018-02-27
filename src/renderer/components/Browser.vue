@@ -6,6 +6,8 @@
 	<div class="progress_bar" id="progress_bar">
 		<span id="progress_meter"></span>
 	</div>
+	<div id="main_notify_history">
+	</div>
 	<web-controls :globalMethods="globalMethods" :config="config" v-if="config.webControlsOpen"></web-controls>
 </div>
 </template>
@@ -13,7 +15,7 @@
 <script>
 import WebControls from './UI/WebControls';
 
-console.log('test');
+// console.log('test');
 const electron = require('electron');
 const remote = electron.remote;
 const {
@@ -45,6 +47,22 @@ export default {
 				webViews: [],
 				webView: null,
 				currentWebViewIndex: null,
+				mainNotification: {
+					count: -1,
+					show: function(text) {
+						this.count++;
+						let rndClass = 'notify_id_' + this.count;
+						let newMainNotify = $('<div class="main_notify show"></div>');
+						newMainNotify.addClass(rndClass);
+						let newMainNotifyInfo = $('<span class="main_notify_info">' + text + '</span>');
+						newMainNotify.append(newMainNotifyInfo);
+						$('#main_notify_history').append(newMainNotify);
+						// $('#main_notify').attr('class', '').addClass('show').addClass(rndClass);
+						setTimeout(function () {
+							$('.main_notify.' + rndClass).remove();
+						}, 3000);
+					}
+				},
 				bookmarks: [
 					{
 						title: 'Apple',
@@ -128,7 +146,7 @@ export default {
 						}
 					}
 					// remote.BrowserObservables.openTabs(self.config.webViews);
-					self.globalMethods.doLayout();
+					// self.globalMethods.doLayout();
 				},
 				handleNewWindowCall: function(e) {
 					const protocol = require('url').parse(e.url).protocol
@@ -157,6 +175,8 @@ export default {
 							// TODO: thats not right? what if the tab finishes in the background?
 							self.config.currentUrl = event.url;
 							self.config.requestUrl = event.url;
+
+							// self.config.mainNotification.show(event.url);
 
 							let targetWvIndex = $(event.target).attr('wv_index');
 							for (let wvIndex = 0; wvIndex < self.config.webViews.length; wvIndex++) {
@@ -189,12 +209,13 @@ export default {
 						// if (urlBar !== document.activeElement) {
 						// 	urlBar.value = urlBar['blur-value'];
 						// }
-						progressMeter.style.width = '100%';
+						progressMeter.style.width = '100vw';
 						progressMeter.style.transition = '.2s';
 						progressBar.style.transition = 'opacity .3s';
 						progressBar.style['transition-delay'] = '.5s';
 						progressBar.style.opacity = 0;
 						setTimeout(function() {
+							progressMeter.style.transition = '0s';
 							progressMeter.style.width = '0px';
 						}, 700);
 					},
@@ -204,6 +225,7 @@ export default {
 						for (let wvIndex = 0; wvIndex < self.config.webViews.length; wvIndex++) {
 							if(self.config.webViews[wvIndex].index == targetWvIndex) {
 								self.config.webViews[wvIndex].title = event.title;
+								// self.config.mainNotification.show(event.title);
 								break;
 							}
 						}
@@ -247,6 +269,7 @@ export default {
 							$(currWebView.webview).attr("active", false);
 						} else {
 							$(currWebView.webview).addClass('active');
+							self.config.mainNotification.show(currWebView.title);
 							$(currWebView.webview).attr("active", true);
 							self.config.currentWebViewIndex = tabIndex;
 							self.config.webView = currWebView;
@@ -255,7 +278,7 @@ export default {
 							}
 						}
 					}
-					self.globalMethods.doLayout();
+					// self.globalMethods.doLayout();
 					// console.log(self.config.currentWebViewIndex);
 				},
 				closeTabByIndex: function(tabIndex) {
@@ -314,6 +337,7 @@ export default {
 					self.config.currentUrl = url;
 					self.config.requestUrl = url;
 					self.globalMethods.closeWebControls();
+					// self.config.mainNotification.show(url);
 				},
 				submitRequestUrl: function(url) {
 					console.log('submitRequestUrl');
@@ -328,9 +352,9 @@ export default {
 						requestURL = "https://www.google.at/search?q=" + encodeURI(requestURL);
 					}
 					self.globalMethods.navigateTo(requestURL);
-					// urlBar.blur();
 				},
 				requestSearchSuggestions: function(query, querySelect) {
+					// TODO: REBUILD THIS FUNCTION
 					console.log('requestSearchSuggestions');
 					// let suggestions = null;
 					//
@@ -350,34 +374,34 @@ export default {
 					// let searchQuery = "https://suggestqueries.google.com/complete/search?client=chrome&q=" + query;
 					// xmlhttp.open("GET", searchQuery, true);
 					// xmlhttp.send();
-				},
-				doLayout: function() {
-					// let titleBar = document.querySelector('#electron_titlebar');
-					// let fullscreenContent = $('.fullscreen');
-					// let webViewBlocks = $(".webview");
-					// let titleBarHeight = titleBar.offsetHeight;
-					let windowWidth = document.documentElement.clientWidth;
-					let windowHeight = document.documentElement.clientHeight;
-					let mainWidth = windowWidth;
-					let mainHeight = windowHeight;
-					// let mainHeight = windowHeight - titleBarHeight;
-
-					// webViewBlocks.width(mainWidth);
-					// webViewBlocks.height(mainHeight);
-					//
-					progressBar.style.width = mainWidth + 'px';
-					// if (self.config.webView.webview.getWebContents != undefined) {
-					// 	let wc = self.config.webView.webview.getWebContents();
-					// 	if(wc != null) {
-					// 		wc.setSize({
-					// 			normal: {
-					// 				width: mainWidth,
-					// 				height: mainHeight
-					// 			}
-					// 		});
-					// 	}
-					// }
 				}
+				// doLayout: function() {
+				// 	// let titleBar = document.querySelector('#electron_titlebar');
+				// 	// let fullscreenContent = $('.fullscreen');
+				// 	// let webViewBlocks = $(".webview");
+				// 	// let titleBarHeight = titleBar.offsetHeight;
+				// 	let windowWidth = document.documentElement.clientWidth;
+				// 	let windowHeight = document.documentElement.clientHeight;
+				// 	let mainWidth = windowWidth;
+				// 	let mainHeight = windowHeight;
+				// 	// let mainHeight = windowHeight - titleBarHeight;
+				//
+				// 	// webViewBlocks.width(mainWidth);
+				// 	// webViewBlocks.height(mainHeight);
+				// 	//
+				// 	progressBar.style.width = mainWidth + 'px';
+				// 	// if (self.config.webView.webview.getWebContents != undefined) {
+				// 	// 	let wc = self.config.webView.webview.getWebContents();
+				// 	// 	if(wc != null) {
+				// 	// 		wc.setSize({
+				// 	// 			normal: {
+				// 	// 				width: mainWidth,
+				// 	// 				height: mainHeight
+				// 	// 			}
+				// 	// 		});
+				// 	// 	}
+				// 	// }
+				// }
 			}
 		};
 	},
@@ -395,7 +419,7 @@ export default {
 			self.globalMethods.openWebControls();
 		}
 
-		window.onresize = self.globalMethods.doLayout;
+		// window.onresize = self.globalMethods.doLayout;
 		// self.globalMethods.doLayout()
 
 // -----------------------------------------------------------
@@ -455,33 +479,43 @@ export default {
 					break;
 				case 'goToBookMarkNr0':
 					self.globalMethods.navigateTo(self.config.bookmarks[0].url);
+					self.config.mainNotification.show(self.config.bookmarks[0].title);
 					break;
 				case 'goToBookMarkNr1':
 					self.globalMethods.navigateTo(self.config.bookmarks[1].url);
+					self.config.mainNotification.show(self.config.bookmarks[1].title);
 					break;
 				case 'goToBookMarkNr2':
 					self.globalMethods.navigateTo(self.config.bookmarks[2].url);
+					self.config.mainNotification.show(self.config.bookmarks[2].title);
 					break;
 				case 'goToBookMarkNr3':
 					self.globalMethods.navigateTo(self.config.bookmarks[3].url);
+					self.config.mainNotification.show(self.config.bookmarks[3].title);
 					break;
 				case 'goToBookMarkNr4':
 					self.globalMethods.navigateTo(self.config.bookmarks[4].url);
+					self.config.mainNotification.show(self.config.bookmarks[4].title);
 					break;
 				case 'goToBookMarkNr5':
 					self.globalMethods.navigateTo(self.config.bookmarks[5].url);
+					self.config.mainNotification.show(self.config.bookmarks[5].title);
 					break;
 				case 'goToBookMarkNr6':
 					self.globalMethods.navigateTo(self.config.bookmarks[6].url);
+					self.config.mainNotification.show(self.config.bookmarks[6].title);
 					break;
 				case 'goToBookMarkNr7':
 					self.globalMethods.navigateTo(self.config.bookmarks[7].url);
+					self.config.mainNotification.show(self.config.bookmarks[7].title);
 					break;
 				case 'goToBookMarkNr8':
 					self.globalMethods.navigateTo(self.config.bookmarks[8].url);
+					self.config.mainNotification.show(self.config.bookmarks[8].title);
 					break;
 				case 'goToBookMarkNr9':
 					self.globalMethods.navigateTo(self.config.bookmarks[9].url);
+					self.config.mainNotification.show(self.config.bookmarks[9].title);
 					break;
 				case 'tabExpose':
 					// $("#web_content").addClass('expose');
@@ -794,8 +828,8 @@ export default {
 #progress_bar {
 	position: absolute;
 	display: block;
-	width: 99.85% !important;
-	height: 2px;
+	width: 100vw;
+	height: .167rem;
 	left: 0;
 	top: 0;
 	overflow: hidden;
@@ -807,10 +841,54 @@ export default {
 	#progress_meter {
 		display: block;
 		width: 0px;
-		height: 2px;
+		height: .167rem;
 		background: #fb8800;
 		background-image: linear-gradient(to right, #07eb7d 0%, #fb8800 40%, #fb8800 60%, #fb4d82 100%);
 		transition: width 10s ease-in-out;
 	}
+}
+
+#main_notify_history {
+	.main_notify {
+		position: absolute;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		align-self: center;
+		bottom: 0;
+		width: 100vw;
+		z-index: 200;
+		// background: rgba(#000, 0.7);
+		// box-shadow: 0 0 10px 2px rgba(#000, 0.7);
+		opacity: 0;
+		pointer-events: none;
+		border: 0 solid #fff;
+		background-image: linear-gradient(60deg, #3d3393 0%, #2b76b9 37%, #2cacd1 65%, #35eb93 100%);
+		// background-image: linear-gradient(to right, #07eb7d 0%, #fb8800 40%, #fb8800 60%, #fb4d82 100%);
+		// background-image: linear-gradient(to right, rgba(#07eb7d, 0.5) 0%, rgba(#fb8800, 0.5) 40%, rgba(#fb8800, 0.5) 60%, rgba(#fb4d82, 0.5) 100%);
+
+		.main_notify_info {
+			pointer-events: none;
+			padding: .33rem;
+			font-size: 2rem;
+			font-weight: 400;
+			color: #fff;
+			max-width: 90vw;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+		&.show {
+			animation-name: showNotification;
+			animation-duration: 1.25s;
+		}
+}
+
+}
+
+@keyframes showNotification {
+	0% {opacity: .5;}
+	15% {opacity: 1;}
+	80% {opacity: 1;}
+	100% {opacity: 0;}
 }
 </style>
