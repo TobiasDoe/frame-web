@@ -25,7 +25,7 @@ let browserOptions = {
 	backgroundColor: '#1D8FE1',
 	titleBarStyle: 'hidden',
 	title: 'frame'
-	// vibrancy: 'medium-light'
+	// vibrancy: 'dark'
 	// titleBarStyle: 'customButtonsOnHover'
 	// icon: './build/icons/icon.icns'
 };

@@ -34,7 +34,7 @@ html, body {
 
 	font-size: 12px;
 
-	// background-image: linear-gradient(60deg, #625EB1 0%, #1D8FE1 37%, #22E1FF 65%, #5bf0a8 100%);
+	background-image: linear-gradient(60deg, #625EB1 0%, #1D8FE1 37%, #22E1FF 65%, #5bf0a8 100%);
 	// background-image: linear-gradient(60deg, rgba(#625eb1, 0.5) 0%, rgba(#3f6f91, 0.5) 37%, rgba(#22e1ff, 0.5) 65%, rgba(#5bf0a8, 0.5) 100%);
 	// background-image: linear-gradient(60deg, #3d3393 0%, #2b76b9 37%, #2cacd1 65%, #35eb93 100%);
 	button {
