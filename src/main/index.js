@@ -26,13 +26,13 @@ let browserOptions = {
 	titleBarStyle: 'hidden',
 	title: 'frame'
 	// vibrancy: 'dark'
-	// titleBarStyle: 'customButtonsOnHover'
 	// icon: './build/icons/icon.icns'
 };
 
-const winURL = process.env.NODE_ENV === 'development' ?
-	`http://localhost:9080` :
-	`file://${__dirname}/index.html`;
+const winURL = process.env.NODE_ENV === 'development' ? `http://localhost:9080` : `file://${__dirname}/index.html`;
+if(process.env.NODE_ENV === 'development') {
+	browserOptions.webPreferences = { webSecurity: false };
+}
 
 function createWindow() {
 	/**

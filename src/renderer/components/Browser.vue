@@ -23,6 +23,8 @@ const {
 	Menu
 } = remote;
 
+import axios from 'axios';
+
 let body = null;
 // let webview = null;
 // let webViews = [];
@@ -47,6 +49,11 @@ export default {
 				webViews: [],
 				webView: null,
 				currentWebViewIndex: null,
+				SearchSuggestions: [],
+				URLSuggestions: [],
+				blockGlobalInput: false,
+				currentFocusSuggestions: -1,
+				queryHistory: [],
 				mainNotification: {
 					count: -1,
 					show: function(text) {
@@ -116,6 +123,7 @@ export default {
 					$(self.config.webView.webview).focus();
 				},
 				initNewWebView: function(target) {
+					console.log('initNewWebView');
 					let newWebView = $('<webview class="fresh_view" autosize webpreferences=""></webview>');
 					let src = target != null ? target.url : 'file://'; // self.config.homepage;
 					newWebView.attr("src", src);
@@ -145,7 +153,7 @@ export default {
 							$('#tb_url').select();
 						}
 					}
-					// remote.BrowserObservables.openTabs(self.config.webViews);
+					// self.config.openTabs(self.config.webViews);
 					// self.globalMethods.doLayout();
 				},
 				handleNewWindowCall: function(e) {
@@ -200,7 +208,7 @@ export default {
 						}, 200);
 					},
 					handleLoadFinish: function(event) {
-						console.log("handleLoadFinish", event.target.src);
+						// console.log("handleLoadFinish", event.target.src);
 						$(event.target).removeClass('fresh_view');
 					},
 					handleLoadStop: function() {
@@ -220,7 +228,7 @@ export default {
 						}, 700);
 					},
 					handlePageTitle: function(event) {
-						console.log("handlePageTitle", event);
+						// console.log("handlePageTitle", event);
 						let targetWvIndex = $(event.target).attr('wv_index');
 						for (let wvIndex = 0; wvIndex < self.config.webViews.length; wvIndex++) {
 							if(self.config.webViews[wvIndex].index == targetWvIndex) {
@@ -231,7 +239,7 @@ export default {
 						}
 					},
 					handleFavIcon: function(event) {
-						console.log("handleFavIcon", event);
+						// console.log("handleFavIcon", event);
 						let targetWvIndex = $(event.target).attr('wv_index');
 						for (let wvIndex = 0; wvIndex < self.config.webViews.length; wvIndex++) {
 							if(self.config.webViews[wvIndex].index == targetWvIndex) {
@@ -241,7 +249,7 @@ export default {
 						}
 					},
 					handleThemeColor: function(event) {
-						console.log("handleThemeColor", event);
+						// console.log("handleThemeColor", event);
 						let targetWvIndex = $(event.target).attr('wv_index');
 						for (let wvIndex = 0; wvIndex < self.config.webViews.length; wvIndex++) {
 							if(self.config.webViews[wvIndex].index == targetWvIndex) {
@@ -252,13 +260,8 @@ export default {
 					},
 					handleWillNavigate: function(event) {
 						console.log("handleWillNavigate", event);
-						// let targetWvIndex = $(event.target).attr('wv_index');
-						// for (let wvIndex = 0; wvIndex < self.config.webViews.length; wvIndex++) {
-						// 	if(self.config.webViews[wvIndex].index == targetWvIndex) {
-						// 		// self.config.webViews[wvIndex].url = event.favicons[0];
-						// 		break;
-						// 	}
-						// }
+						event.preventDefault();
+						// debugger;
 					}
 				},
 				presentTabByIndex: function(tabIndex) {
@@ -274,6 +277,7 @@ export default {
 							self.config.currentWebViewIndex = tabIndex;
 							self.config.webView = currWebView;
 							if (self.config.webControlsOpen) {
+								$('#tb_url')[0].value = self.config.webView.url;
 								$('#tb_url').select();
 							}
 						}
@@ -293,7 +297,7 @@ export default {
 							break;
 						}
 					}
-					// remote.BrowserObservables.openTabs(self.config.webViews);
+					// self.config.openTabs(self.config.webViews);
 				},
 				findNextTabIndex: function() {
 					let foundWv = false;
@@ -333,14 +337,19 @@ export default {
 				},
 				navigateTo: function(url) {
 					// resetExitedState();
+					console.log('navigateTo', url);
 					self.config.webView.webview.loadURL(url);
 					self.config.currentUrl = url;
 					self.config.requestUrl = url;
 					self.globalMethods.closeWebControls();
 					// self.config.mainNotification.show(url);
 				},
+				searchTo: function(query) {
+					let searchUrl = "https://www.google.at/search?q=" + encodeURI(query) + "&rct=j";
+					self.globalMethods.navigateTo(searchUrl);
+				},
 				submitRequestUrl: function(url) {
-					console.log('submitRequestUrl');
+					console.log('submitRequestUrl', url);
 					// let requestURL = self.config.requestUrl.trim();
 					let requestURL = url.trim();
 					if (requestURL.indexOf('.') !== -1) {
@@ -351,57 +360,121 @@ export default {
 					} else {
 						requestURL = "https://www.google.at/search?q=" + encodeURI(requestURL);
 					}
+					console.log('FUCKYOU', requestURL);
 					self.globalMethods.navigateTo(requestURL);
 				},
 				requestSearchSuggestions: function(query, querySelect) {
-					// TODO: REBUILD THIS FUNCTION
-					console.log('requestSearchSuggestions');
-					// let suggestions = null;
-					//
-					// let xmlhttp = new XMLHttpRequest();
-					//
-					// xmlhttp.onreadystatechange = function() {
-					// 	if (xmlhttp.readyState === XMLHttpRequest.DONE) {
-					// 		if (xmlhttp.status === 200) {
-					// 			wv.showSuggestions(xmlhttp.responseText, querySelect);
-					// 		} else if (xmlhttp.status === 400) {
-					// 			console.warn('There was an error 400');
-					// 		} else {
-					// 			console.warn('something else other than 200 was returned');
-					// 		}
-					// 	}
-					// };
-					// let searchQuery = "https://suggestqueries.google.com/complete/search?client=chrome&q=" + query;
-					// xmlhttp.open("GET", searchQuery, true);
-					// xmlhttp.send();
+					let searchQuery = "https://suggestqueries.google.com/complete/search?client=chrome&q=" + query;
+					let config = {
+						headers: {'Access-Control-Allow-Origin': '*'}
+					};
+					axios.get(searchQuery)
+					.then(function (response) {
+						// console.log('requestSearchSuggestions data',response);
+						self.globalMethods.showSuggestions(response.data, querySelect);
+					})
+					.catch(function (error) {
+						console.log(error);
+					});
+				},
+				showSuggestions: function(obj, querySelect) {
+					// let obj = $.parseJSON(data);
+					const query = obj[0];
+					if (query === self.config.webView.url) {
+						self.config.SearchSuggestions = [];
+						self.config.URLSuggestions = [];
+
+						let suggestionsArray = obj[1];
+						let infoArray = obj[2];
+						let typeArray = obj[4]['google:suggesttype'];
+
+
+						for (let suggestionsIndex = 0; suggestionsIndex < suggestionsArray.length && suggestionsIndex < 10; suggestionsIndex++) {
+							let suggestion = suggestionsArray[suggestionsIndex];
+							let info = infoArray[suggestionsIndex];
+							let type = typeArray[suggestionsIndex];
+							if (type != null && type === "NAVIGATION") {
+								self.config.URLSuggestions.push({ suggestion: suggestion, info: info, call: self.globalMethods.navigateTo});
+								if (self.config.URLSuggestions.length === 1 && querySelect === true) {
+									self.globalMethods.addSuggestionToUrl(suggestion);
+								}
+							} else {
+								self.config.SearchSuggestions.push({ suggestion: suggestion, info: info, call: self.globalMethods.searchTo});
+							}
+						}
+						self.config.currentFocusSuggestions = -1;
+					}
+				},
+				addSuggestionToUrl: function(suggestion) {
+					if (suggestion.indexOf(self.config.webView.url) !== -1) {
+						let beginAddString = suggestion.indexOf(self.config.webView.url) + self.config.webView.url.length;
+						let addUrlPart = suggestion.substr(beginAddString);
+						let start = self.config.webView.url.length;
+						self.config.webView.url += addUrlPart;
+						$('#tb_url')[0].value = self.config.webView.url;
+						let end = self.config.webView.url.length;
+						$('#tb_url')[0].setSelectionRange(start, end);
+						// debugger;
+					}
+				},
+				urlBarKeyDown: function(event) {
+					// console.log("urlBarKeyDown", event);
+					self.config.blockGlobalInput = false;
+					let key = event.keyCode;
+					if (key === 13) {
+						event.preventDefault();
+						if (self.config.currentFocusSuggestions > -1) {
+							let suggestion = null;
+							if (self.config.currentFocusSuggestions >= self.config.URLSuggestions.length) {
+								suggestion = self.config.SearchSuggestions[self.config.currentFocusSuggestions - self.config.URLSuggestions.length];
+							} else {
+								suggestion = self.config.URLSuggestions[self.config.currentFocusSuggestions];
+							}
+							suggestion.call(suggestion.suggestion);
+						} else {
+							console.log('WTF!!!!!', self.config.webView.url);
+							self.globalMethods.submitRequestUrl(self.config.webView.url);
+						}
+					} else if (key === 9 && event.ctrlKey !== true) {
+						event.preventDefault();
+						let end = self.config.webView.url.length;
+						$('#tb_url')[0].setSelectionRange(end, end);
+					} else if (key === 8) {
+					} else if (((key === 65 || key === 17) && event.ctrlKey === true) || key === 119) {
+						self.config.blockGlobalInput = true;
+					} else if (key === 17) {
+						self.config.blockGlobalInput = true;
+					} else if (key === 38 || key === 40) {
+						self.config.blockGlobalInput = true;
+						event.preventDefault();
+						switch (key) {
+							case 38:
+								if (self.config.currentFocusSuggestions !== 0) {
+									self.config.currentFocusSuggestions = self.config.currentFocusSuggestions - 1;
+								}
+								break;
+							case 40:
+								if (self.config.currentFocusSuggestions !== (self.config.SearchSuggestions.length + self.config.URLSuggestions.length) - 1) {
+									self.config.currentFocusSuggestions = self.config.currentFocusSuggestions + 1;
+								}
+								break;
+						}
+						self.globalMethods.onSuggestionSelectionChange();
+					}
+				},
+				onSuggestionSelectionChange: function() {
+					let suggestion = null;
+					if (self.config.currentFocusSuggestions >= self.config.URLSuggestions.length) {
+						suggestion = self.config.SearchSuggestions[self.config.currentFocusSuggestions - self.config.URLSuggestions.length];
+					} else {
+						suggestion = self.config.URLSuggestions[self.config.currentFocusSuggestions];
+					}
+					// console.log(suggestion);
+					if (suggestion != null) {
+						// debugger;
+						self.config.webView.url = suggestion.suggestion;
+					}
 				}
-				// doLayout: function() {
-				// 	// let titleBar = document.querySelector('#electron_titlebar');
-				// 	// let fullscreenContent = $('.fullscreen');
-				// 	// let webViewBlocks = $(".webview");
-				// 	// let titleBarHeight = titleBar.offsetHeight;
-				// 	let windowWidth = document.documentElement.clientWidth;
-				// 	let windowHeight = document.documentElement.clientHeight;
-				// 	let mainWidth = windowWidth;
-				// 	let mainHeight = windowHeight;
-				// 	// let mainHeight = windowHeight - titleBarHeight;
-				//
-				// 	// webViewBlocks.width(mainWidth);
-				// 	// webViewBlocks.height(mainHeight);
-				// 	//
-				// 	progressBar.style.width = mainWidth + 'px';
-				// 	// if (self.config.webView.webview.getWebContents != undefined) {
-				// 	// 	let wc = self.config.webView.webview.getWebContents();
-				// 	// 	if(wc != null) {
-				// 	// 		wc.setSize({
-				// 	// 			normal: {
-				// 	// 				width: mainWidth,
-				// 	// 				height: mainHeight
-				// 	// 			}
-				// 	// 		});
-				// 	// 	}
-				// 	// }
-				// }
 			}
 		};
 	},
@@ -419,8 +492,7 @@ export default {
 			self.globalMethods.openWebControls();
 		}
 
-		// window.onresize = self.globalMethods.doLayout;
-		// self.globalMethods.doLayout()
+		// window.onresize = function() {};
 
 // -----------------------------------------------------------
 // -----------------------MenuItemCalls-----------------------
@@ -450,7 +522,7 @@ export default {
 					}
 					break;
 				case 'quitApp':
-					console.log(remote);
+					// console.log(remote);
 					const window = remote.getCurrentWindow();
 					window.close();
 					break;
@@ -464,7 +536,7 @@ export default {
 					// menuItemCall("quitApp");
 					if(self.config.webViews.length > 1){
 						self.globalMethods.closeTabByIndex(self.config.currentWebViewIndex);
-						self.globalMethods.closeWebControls();
+						// self.globalMethods.closeWebControls();
 					} else {
 						menuItemCall("quitApp");
 					}

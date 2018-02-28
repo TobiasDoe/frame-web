@@ -14,7 +14,7 @@
 <style lang="scss">
 @import url('https://fonts.googleapis.com/css?family=Raleway:300,400,600');
 
-$webView_blur: .8rem;
+$webView_blur: 1.5rem;
 
 // Base Styles
 * {
@@ -70,10 +70,19 @@ html, body {
 
 	&.modal_open {
 		#web_content {
-			filter: blur($webView_blur);
+			webview.active {
+				animation-name: blurWebView;
+				animation-fill-mode: forwards;
+				animation-duration: .45s;
+				animation-timing-function: ease-in;
+			}
 		}
 	}
 
+	@keyframes blurWebView {
+		0% { opacity: 1; filter: blur(.4rem); }
+		100% { opacity: .8; filter: blur(2rem); }
+	}
 }
 
 button, input {

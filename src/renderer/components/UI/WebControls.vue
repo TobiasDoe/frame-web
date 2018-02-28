@@ -13,14 +13,35 @@
 		<div id="url_bar" class="url_bar w-75">
 			<form id="url_form" class="url_form">
 				<span id="tb_url_ghost" class="tb_url_ghost form-control form-control-lg"
-					v-on:click="presentUrlBar()">{{ config.webView.url != '' ? config.webView.url : 'Search or enter website name' }}</span>
+					v-on:click="presentUrlBar()"><span class="ghorst_text">{{ config.webView.url != '' ? config.webView.url : 'Search or enter website name' }}</span></span>
 				<input id="tb_url" type="text" value="" class="form-control form-control-lg"
-					v-model="config.webView.url"
-					v-on:input="globalMethods.requestSearchSuggestions(config.requestUrl, true)"
+					v-model.lazy="config.webView.url"
 					v-on:focus="presentUrlBar()"
-					v-on:blur="presentGhost()">
-				<input type="submit" value="Go" hidden v-on:click.prevent="globalMethods.submitRequestUrl(config.webView.url)">
+					v-on:blur="presentGhost()"
+					v-on:keyup="globalMethods.urlBarKeyDown"
+					v-on:keydown.tab.prevent=""
+					v-on:keydown.enter.prevent=""
+					v-on:input="onUrlBarChange()">
+				<!-- <input type="submit" value="Go" hidden v-on:click.prevent="globalMethods.submitRequestUrl(config.webView.url)"> -->
 			</form>
+		</div>
+		<div class="suggestions_bar w-75" id="suggestions_bar" v-if="(config.SearchSuggestions.length != 0 || config.URLSuggestions.length != 0)">
+			<div class="websites">
+				<div class="group" >websites</div>
+					<div class="" v-for="(suggestion, index) in config.URLSuggestions">
+						<div class="suggestion_row" v-bind:class="config.currentFocusSuggestions === index ? 'selected' : ''">
+							<span class="suggestion">{{ suggestion.suggestion }}</span><span class="info" v-if="suggestion.info != ''">{{ ' - ' + suggestion.info }}</span>
+						</div>
+					</div>
+			</div>
+			<div class="searches">
+				<div class="group" >Search with Google</div>
+					<div class="" v-for="(suggestion, index) in config.SearchSuggestions">
+					<div class="suggestion_row" v-bind:class="config.currentFocusSuggestions === config.URLSuggestions.length + index ? 'selected' : ''">
+						<span class="suggestion">{{ suggestion.suggestion }}</span><span class="info" v-if="suggestion.info != ''">{{ ' - ' + suggestion.info }}</span>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
@@ -50,6 +71,7 @@ export default {
 			let urlForm = $('#url_form');
 			let urlBar = $('#tb_url');
 			urlForm.removeClass('ghost_active');
+			$(this.config.webView.webview).blur();
 			urlBar.focus();
 			urlBar.select();
 		},
@@ -58,6 +80,14 @@ export default {
 			let urlBar = $('#tb_url');
 			urlBar.blur();
 			urlForm.addClass('ghost_active');
+		},
+		onUrlBarChange: function() {
+			this.config.webView.url = event.target.value;
+			let querySelect = this.config.queryHistory[this.config.queryHistory.length - 1] !== this.config.webView.url;
+			if (!this.config.blockGlobalInput) {
+				this.config.queryHistory.push(this.config.webView.url);
+				this.globalMethods.requestSearchSuggestions(this.config.webView.url, querySelect);
+			}
 		}
 	}
 }
@@ -71,26 +101,26 @@ $aqua_input_text_blur: #fff;
 $aqua_input_text_focus_border: #fff;
 
 $web_controls_top_spacing: 15vh;
-$web_controls_blur_opacity: .3;
+$web_controls_blur_opacity: .8;
 
 .web_controls {
 	color: $aqua_input_text_blur;
 	// background: rgba(0, 0, 0, 0.8);
-	:after {
+	&:after {
 		content: "";
 		opacity: $web_controls_blur_opacity;
 		top: 0;
 		left: 0;
 		bottom: 0;
 		right: 0;
-		z-index: -1;
+		z-index: 1;
 		position: absolute;
 		background-image: linear-gradient(60deg, #3d3393 0%, #2b76b9 37%, #2cacd1 65%, #35eb93 100%);
 	}
 
 	.inner_web_controls {
 		padding-top: $web_controls_top_spacing;
-		z-index: 1;
+		z-index: 2;
 	}
 	.url_bar {
 		.url_form {
@@ -101,6 +131,7 @@ $web_controls_blur_opacity: .3;
 				height: 41px;
 				font-size: 1.5rem;
 				text-align: center;
+
 
 				background-color: rgba(#cdcdcd, 0.4);
 				transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
@@ -113,6 +144,8 @@ $web_controls_blur_opacity: .3;
 					outline: 0;
 					overflow: hidden;
 					color: $aqua_input_text;
+					text-align: left;
+					padding-left: 6rem;
 
 					background-color: rgba(#eeeeee, 0.55);
 
@@ -139,6 +172,13 @@ $web_controls_blur_opacity: .3;
 				text-overflow: ellipsis;
 
 				border-color: #dbdbdb;
+
+				.ghorst_text {
+					background-image: linear-gradient(60deg, #f43b47 0%, #133a9e 100%);
+					-webkit-background-clip: text;
+					-webkit-text-fill-color: transparent;
+				}
+
 				&:hover {
 					outline: 0;
 
@@ -158,6 +198,37 @@ $web_controls_blur_opacity: .3;
 				#tb_url_ghost {
 					display: block;
 					// opacity: 1;
+				}
+			}
+		}
+	}
+
+	.suggestions_bar {
+		padding-left: 6rem;
+		text-shadow: 0 0 .5px  #000;
+
+		// color: #111;
+		// border: .5px solid #dbdbdb !important;
+		// background-color: rgba(#eeeeee, 0.55);
+		// border-bottom-right-radius: 4px;
+		// border-bottom-left-radius: 4px;
+
+		.suggestion_row {
+			font-size: 1.8rem;
+
+			&.selected {
+				text-shadow: none;
+				.suggestion {
+					background-image: linear-gradient(60deg, #f43b47 0%, #133a9e 100%);
+					-webkit-background-clip: text;
+					-webkit-text-fill-color: transparent;
+					font-weight: 400;
+				}
+				.info {
+					background-image: linear-gradient(60deg, #e6e3e3 0%, #fff 100%);
+					-webkit-background-clip: text;
+					-webkit-text-fill-color: transparent;
+					font-weight: 400;
 				}
 			}
 		}
