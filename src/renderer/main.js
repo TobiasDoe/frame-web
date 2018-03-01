@@ -23,6 +23,9 @@ window.$ = window.jQuery = require('jquery');
 window.Tether = require('tether');
 window.Bootstrap = require('bootstrap');
 
+console.log('version', app.getVersion());
+console.log('name', app.getName());
+
 /* eslint-disable no-new */
 new Vue({
 	components: {
