@@ -212,11 +212,6 @@ export default {
 						$(event.target).removeClass('fresh_view');
 					},
 					handleLoadStop: function() {
-						// urlBar['focus-value'] = webview.getURL();
-						// urlBar['blur-value'] = wv.getRootURL(webview.getURL()) + " - " + webview.getTitle();
-						// if (urlBar !== document.activeElement) {
-						// 	urlBar.value = urlBar['blur-value'];
-						// }
 						progressMeter.style.width = '100vw';
 						progressMeter.style.transition = '.2s';
 						progressBar.style.transition = 'opacity .3s';
@@ -353,7 +348,7 @@ export default {
 					console.log('submitRequestUrl', url);
 					// let requestURL = self.config.requestUrl.trim();
 					let requestURL = url.trim();
-					if (requestURL.indexOf('.') !== -1) {
+					if (requestURL.indexOf('.') !== -1 && requestURL.indexOf(' ') === -1) {
 						let httpFound = requestURL.indexOf('http://') !== -1 ? true : requestURL.indexOf('https://') !== -1 ? true : false;
 						if (!httpFound && requestURL.indexOf('file://') === -1) {
 							requestURL = "http://" + requestURL;
