@@ -4,7 +4,6 @@ import { app, BrowserWindow } from 'electron';
 
 const Config = require('electron-config');
 const config = new Config();
-const path = require('path');
 
 /**
  * Set `__static` path to static files in production
@@ -39,6 +38,7 @@ function createWindow() {
 	/**
 	 * Initial window options
 	 */
+	console.log('app.version', app.getVersion());
 
 	Object.assign(browserOptions, config.get('winBounds'));
 	mainWindow = new BrowserWindow(browserOptions);
@@ -97,9 +97,10 @@ app.on('activate', () => {
  * support auto updating. Code Signing with a valid certificate is required.
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-electron-builder.html#auto-updating
  */
-
 import { autoUpdater } from 'electron-updater';
+const path = require('path');
 
+console.log(process.env.NODE_ENV);
 autoUpdater.on('update-downloaded', () => {
 	console.log('update-downloaded');
 	if (process.env.NODE_ENV === 'production') {
@@ -107,13 +108,14 @@ autoUpdater.on('update-downloaded', () => {
 	}
 });
 
-app.on('ready', () => {
-	console.log(process.env.NODE_ENV);
-	if(process.env.NODE_ENV === 'development') {
-		autoUpdater.updateConfigPath = path.join(`${__dirname}`, 'dev-app-update.yml');
+if(process.env.NODE_ENV === 'development') {
+	autoUpdater.updateConfigPath = path.join(`${__dirname}`, 'dev-app-update.yml');
+	setTimeout(function () {
 		autoUpdater.checkForUpdates();
-	}
-	if (process.env.NODE_ENV === 'production') {
+	}, 1000);
+}
+if (process.env.NODE_ENV === 'production') {
+	setTimeout(function () {
 		autoUpdater.checkForUpdates();
-	}
-});
+	}, 1000);
+}
