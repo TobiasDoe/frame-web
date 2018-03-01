@@ -18,8 +18,11 @@
 					v-model.lazy="config.webView.url"
 					v-on:focus="presentUrlBar()"
 					v-on:blur="presentGhost()"
+					v-on:keydown.ctrl.tab.prevent="globalMethods.presentTabByIndex(globalMethods.findNextTabIndex());"
 					v-on:keyup="globalMethods.urlBarKeyDown"
 					v-on:keydown.tab.prevent=""
+					v-on:keydown.38.prevent=""
+					v-on:keydown.40.prevent=""
 					v-on:keydown.enter.prevent=""
 					v-on:input="onUrlBarChange()">
 				<!-- <input type="submit" value="Go" hidden v-on:click.prevent="globalMethods.submitRequestUrl(config.webView.url)"> -->
@@ -43,6 +46,34 @@
 				</div>
 			</div>
 		</div>
+		<div class="bookmark_bar mt-5 w-75 d-flex flex-row flex-wrap justify-content-around" id="bookmark_bar" v-if="(config.SearchSuggestions.length == 0 && config.URLSuggestions.length == 0)">
+			<div class="bookmark text-center p-3" v-for="(bookmark, index) in config.bookmarks">
+				<span class="shortcut">{{ '⌘' + (index+1)}}</span>
+				<span class="title">{{ bookmark.title }}</span>
+			</div>
+		</div>
+	</div>
+	<div class="action_bar w-25 d-flex flex-row flex-wrap justify-content-around" id="bookmark_bar">
+		<div class="action text-center" data-toggle="tooltip" data-placement="top" title="New Tab">
+			<span class="shortcut">⌘T</span>
+			<span class="icon">#T</span>
+			<span class="title">New Tab</span>
+		</div>
+		<div class="action text-center" data-toggle="tooltip" data-placement="top" title="Go Back">
+			<span class="shortcut">⌘Left</span>
+			<span class="icon">#Left</span>
+			<span class="title">Go Back</span>
+		</div>
+		<div class="action text-center" data-toggle="tooltip" data-placement="top" title="Go Forward">
+			<span class="shortcut">⌘Right</span>
+			<span class="icon">#Right</span>
+			<span class="title">Go Forward</span>
+		</div>
+		<div class="action text-center" data-toggle="tooltip" data-placement="top" title="Reload">
+			<span class="shortcut">⌘R</span>
+			<span class="icon">#R</span>
+			<span class="title">Reload</span>
+		</div>
 	</div>
 </div>
 </template>
@@ -58,6 +89,7 @@ export default {
 	mounted() {
 		console.log('#web_controls mounted.');
 		this.tbUrlGotFocus();
+
 	},
 	methods: {
 		goToTabByIndex: function(webview) {
@@ -174,9 +206,10 @@ $web_controls_blur_opacity: .8;
 				border-color: #dbdbdb;
 
 				.ghorst_text {
-					background-image: linear-gradient(60deg, #f43b47 0%, #133a9e 100%);
-					-webkit-background-clip: text;
-					-webkit-text-fill-color: transparent;
+					// background-image: linear-gradient(60deg, #f43b47 0%, #133a9e 100%);
+					// -webkit-background-clip: text;
+					// -webkit-text-fill-color: transparent;
+					pointer-events: none;
 				}
 
 				&:hover {
@@ -219,7 +252,7 @@ $web_controls_blur_opacity: .8;
 			&.selected {
 				text-shadow: none;
 				.suggestion {
-					background-image: linear-gradient(60deg, #f43b47 0%, #133a9e 100%);
+					background-image: linear-gradient(60deg, #e8202d 0%, #8f121b 100%);
 					-webkit-background-clip: text;
 					-webkit-text-fill-color: transparent;
 					font-weight: 400;
@@ -229,6 +262,80 @@ $web_controls_blur_opacity: .8;
 					-webkit-background-clip: text;
 					-webkit-text-fill-color: transparent;
 					font-weight: 400;
+				}
+			}
+		}
+	}
+	.bookmark_bar {
+		display: none !important;
+
+		.bookmark {
+			width: auto;
+			font-size: 2rem;
+			border: .5px solid transparent;
+
+			.shortcut {
+				font-family: "Helvetica Neue";
+				font-weight: 400;
+			}
+
+			&:hover {
+				border: .5px solid rgba(#ffffff, 0.3);
+				background-color: rgba(#cdcdcd, 0.3);
+				color: #333333;
+				border-radius: 4px;
+				cursor: pointer;
+				* {
+					cursor: pointer;
+				}
+			}
+		}
+	}
+	.action_bar {
+		display: none !important;
+
+		position: absolute;
+		bottom: 0rem;
+		border: .5px solid rgba(#ffffff, 0.3);
+		border-bottom: none;
+		background-color: rgba(#cdcdcd, 0.3);
+		border-top-right-radius: 4px;
+		// border-top-left-radius: 4px;
+		z-index: 4;
+
+		.action {
+			width: auto;
+			font-size: 1.6rem;
+			border: .5px solid transparent;
+			position: relative;
+			width: 4.33rem;
+			overflow: hidden;
+
+			.shortcut {
+				display: none;
+				font-family: "Helvetica Neue";
+				font-weight: 400;
+			}
+			.icon {
+				display: block;
+			}
+			.title {
+				display: none;
+			}
+
+			&:hover {
+				background-color: rgba(#cdcdcd, 0.3);
+				color: #333333;
+				cursor: pointer;
+				* {
+					cursor: pointer;
+				}
+
+				.shortcut {
+					display: inline-block;
+				}
+				.icon {
+					display: none;
 				}
 			}
 		}

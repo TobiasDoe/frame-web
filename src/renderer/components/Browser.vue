@@ -278,6 +278,7 @@ export default {
 							self.config.webView = currWebView;
 							if (self.config.webControlsOpen) {
 								$('#tb_url')[0].value = self.config.webView.url;
+								$('#tb_url').focus;
 								$('#tb_url').select();
 							}
 						}
@@ -360,7 +361,6 @@ export default {
 					} else {
 						requestURL = "https://www.google.at/search?q=" + encodeURI(requestURL);
 					}
-					console.log('FUCKYOU', requestURL);
 					self.globalMethods.navigateTo(requestURL);
 				},
 				requestSearchSuggestions: function(query, querySelect) {
@@ -383,6 +383,7 @@ export default {
 					if (query === self.config.webView.url) {
 						self.config.SearchSuggestions = [];
 						self.config.URLSuggestions = [];
+						self.config.currentFocusSuggestions -1;
 
 						let suggestionsArray = obj[1];
 						let infoArray = obj[2];
@@ -432,10 +433,11 @@ export default {
 							}
 							suggestion.call(suggestion.suggestion);
 						} else {
-							console.log('WTF!!!!!', self.config.webView.url);
 							self.globalMethods.submitRequestUrl(self.config.webView.url);
 						}
-					} else if (key === 9 && event.ctrlKey !== true) {
+						self.config.URLSuggestions = [];
+						self.config.SearchSuggestions = [];
+					} else if (key === 9 && event.ctrlKey !== true) { // key: TAB
 						event.preventDefault();
 						let end = self.config.webView.url.length;
 						$('#tb_url')[0].setSelectionRange(end, end);
@@ -449,7 +451,7 @@ export default {
 						event.preventDefault();
 						switch (key) {
 							case 38:
-								if (self.config.currentFocusSuggestions !== 0) {
+								if (self.config.currentFocusSuggestions !== -1) {
 									self.config.currentFocusSuggestions = self.config.currentFocusSuggestions - 1;
 								}
 								break;
@@ -473,6 +475,7 @@ export default {
 					if (suggestion != null) {
 						// debugger;
 						self.config.webView.url = suggestion.suggestion;
+						$('#tb_url')[0].value = suggestion.suggestion;
 					}
 				}
 			}
