@@ -147,7 +147,8 @@ $web_controls_blur_opacity: .8;
 		right: 0;
 		z-index: 1;
 		position: absolute;
-		background-image: linear-gradient(60deg, #3d3393 0%, #2b76b9 37%, #2cacd1 65%, #35eb93 100%);
+		// background-image: linear-gradient(60deg, #3d3393 0%, #2b76b9 37%, #2cacd1 65%, #35eb93 100%);
+		background-image: linear-gradient(60deg, #934433 0%, #b9af2b 37%, #d1cf2c 65%, #35eb78 100%);
 	}
 
 	.inner_web_controls {
