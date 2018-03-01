@@ -1,6 +1,9 @@
 {
 	"name": "frame",
-	"version": "0.0.2",
+	"version": "0.1.0",
+	"tag": "v0.1.0",
+	"homepage": "https://frame.onmyown.at",
+	"keywords": ["frame", "browser", "electron", "minimal", "no-ui"],
 	"author": "Tobias <developer@onmyown.at>",
 	"description": "A KeyBoard ShortCut based WebBrowser with minimal visual UI.",
 	"license": "MIT",
