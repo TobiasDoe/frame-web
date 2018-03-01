@@ -4,6 +4,7 @@ import { app, BrowserWindow } from 'electron';
 
 const Config = require('electron-config');
 const config = new Config();
+const path = require('path');
 
 /**
  * Set `__static` path to static files in production
@@ -97,16 +98,18 @@ app.on('activate', () => {
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-electron-builder.html#auto-updating
  */
 
-/*
 import { autoUpdater } from 'electron-updater';
 
 autoUpdater.on('update-downloaded', () => {
+	console.log('update-downloaded');
 	autoUpdater.quitAndInstall();
 });
 
 app.on('ready', () => {
+	if(process.env.NODE_ENV === 'development') {
+		autoUpdater.updateConfigPath = path.join(`${__dirname}`, 'dev-app-update.yml');
+	}
 	if (process.env.NODE_ENV === 'production') {
 		autoUpdater.checkForUpdates()
 	}
 });
-*/
