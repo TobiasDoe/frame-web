@@ -1,6 +1,6 @@
 {
 	"name": "frame",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"author": "Tobias <developer@onmyown.at>",
 	"description": "A KeyBoard ShortCut based WebBrowser with minimal visual UI.",
 	"license": "MIT",
