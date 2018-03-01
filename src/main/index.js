@@ -102,14 +102,18 @@ import { autoUpdater } from 'electron-updater';
 
 autoUpdater.on('update-downloaded', () => {
 	console.log('update-downloaded');
-	autoUpdater.quitAndInstall();
+	if (process.env.NODE_ENV === 'production') {
+		autoUpdater.quitAndInstall();
+	}
 });
 
 app.on('ready', () => {
+	console.log(process.env.NODE_ENV);
 	if(process.env.NODE_ENV === 'development') {
 		autoUpdater.updateConfigPath = path.join(`${__dirname}`, 'dev-app-update.yml');
+		autoUpdater.checkForUpdates();
 	}
 	if (process.env.NODE_ENV === 'production') {
-		autoUpdater.checkForUpdates()
+		autoUpdater.checkForUpdates();
 	}
 });
