@@ -13,6 +13,8 @@ Description            | Keys
 New Tab                | <kbd>Cmd</kbd> <kbd>T</kbd>
 Next Tab               | <kbd>Ctrl</kbd> <kbd>Tab</kbd>
 Close Tab              | <kbd>Cmd</kbd> <kbd>W</kbd>
+History Back           | <kbd>Cmd</kbd> <kbd>Left</kbd>
+History Forward        | <kbd>Cmd</kbd> <kbd>Right</kbd>
 Open Web Controls      | <kbd>Cmd</kbd> <kbd>L</kbd> or <kbd>Cmd</kbd> <kbd>E</kbd>
 Preferences            | <kbd>Cmd</kbd> <kbd>,</kbd>
 
