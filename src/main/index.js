@@ -71,12 +71,12 @@ function createWindow() {
 	});
 
 	// Wait a second for the window to exist before checking for updates.
-	if(process.env.NODE_ENV === 'development') {
-		autoUpdater.updateConfigPath = path.join(`${__dirname}`, 'dev-app-update.yml');
-		setTimeout(function () {
-			autoUpdater.checkForUpdates();
-		}, 1000);
-	}
+	// if(process.env.NODE_ENV === 'development') {
+	// 	autoUpdater.updateConfigPath = path.join(`${__dirname}`, 'dev-app-update.yml');
+	// 	setTimeout(function () {
+	// 		autoUpdater.checkForUpdates();
+	// 	}, 1000);
+	// }
 	if (process.env.NODE_ENV === 'production') {
 		setTimeout(function () {
 			autoUpdater.checkForUpdates();
