@@ -1,5 +1,8 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
+
+const electronAdBlocker = require("electron-ad-blocker");
+
 const path = require('path');
 
 const Config = require('electron-config');
@@ -41,6 +44,8 @@ function createWindow() {
 
 	Object.assign(browserOptions, config.get('winBounds'));
 	mainWindow = new BrowserWindow(browserOptions);
+
+	electronAdBlocker.blockWindowAds(mainWindow);
 
 	mainWindow.loadURL(winURL);
 
