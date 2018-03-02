@@ -8,6 +8,18 @@
 	</div>
 	<div id="main_notify_history">
 	</div>
+	<div id="update_notify_history" class="show lock" v-bind:class="!config.webControlsOpen ? 'hidden' : ''">
+		<div id="update_notification" class="w-100">
+			<div id="update_notification_text" class="update_notification_text">Info</div>
+			<div id="update_options"class="update_options d-flex justify-content-between">
+				<button id="btn_update_later" type="button" name="button" class="btn btn-outline-dark btn-lg">Later...</button>
+				<button id="btn_update_now" type="button" name="button" class="btn btn-outline-primary btn-lg">Restart</button>
+			</div>
+		</div>
+		<div id="update_progress" class="update_progress progress" style="height: 4px;">
+			<div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+		</div>
+	</div>
 	<web-controls :globalMethods="globalMethods" :config="config" v-if="config.webControlsOpen"></web-controls>
 </div>
 </template>
@@ -16,14 +28,71 @@
 import WebControls from './UI/WebControls';
 
 // console.log('test');
-const electron = require('electron');
-const remote = electron.remote;
+const { electron, ipcRenderer, remote } = require('electron');
 const {
 	app,
 	Menu
 } = remote;
 
 import axios from 'axios';
+
+ipcRenderer.on('checking-for-update', function(event) {
+	console.log("checking-for-update");
+	let updateText = $('#update_notification_text');
+	let updateNotify = $('#update_notify_history');
+	updateText.text("Checking for Updates...");
+	updateNotify.addClass('show').removeClass('lock');
+});
+ipcRenderer.on('update-available', function(event, autoUpdate) {
+	console.log("update-available", autoUpdate);
+	let updateText = $('#update_notification_text');
+	let updateNotify = $('#update_notify_history');
+	updateText.text("New Update available");
+	updateNotify.addClass('show').removeClass('lock');
+});
+ipcRenderer.on('update-not-available', function(event, autoUpdate) {
+	console.log("update-not-available", autoUpdate);
+	let updateText = $('#update_notification_text');
+	let updateNotify = $('#update_notify_history');
+	updateText.text("frame is up to date!");
+	updateNotify.addClass('show').removeClass('lock');
+});
+ipcRenderer.on('update-error', function(event, err) {
+	console.log("update-error", err);
+	let updateText = $('#update_notification_text');
+	let updateNotify = $('#update_notify_history');
+	updateText.text("Update Error!");
+	updateNotify.addClass('show').removeClass('lock');
+});
+ipcRenderer.on('download-progress', function(event, progress) {
+	console.log("download-progress", progress);
+	let updateText = $('#update_notification_text');
+	let updateNotify = $('#update_notify_history');
+	let updateProgress = $('#update_progress .progress-bar');
+	updateProgress.css({ 'width': progress.percent + "%" });
+
+	updateText.text("Downloading new Update...");
+	updateNotify.removeClass('show').addClass('lock').addClass('download');
+});
+ipcRenderer.on('update-downloaded', function(event, autoUpdate) {
+	console.log("update-downloaded", autoUpdate);
+
+	let updateText = $('#update_notification_text');
+	let updateNotify = $('#update_notify_history');
+	let updateLater = $('#btn_update_later');
+	let updateNow = $('#btn_update_now');
+
+	updateText.text("Update ready to install");
+	updateNotify.removeClass('show').removeClass('download').addClass('lock').addClass('options');
+	updateLater.click(function(){
+		updateNotify.removeClass('show').removeClass('download').removeClass('lock').removeClass('options');
+	});
+	updateNow.click(function(){
+		ipcRenderer.send('request-quit-and-install');
+	});
+});
+
+
 
 let body = null;
 // let webview = null;
@@ -952,10 +1021,85 @@ export default {
 			animation-name: showNotification;
 			animation-duration: 1.25s;
 		}
-}
+	}
 
 }
 
+
+#update_notify_history {
+	position: absolute;
+	top: 0;
+	right: 0;
+	z-index: 201;
+	width: 380px;
+	max-width: 80vw;
+	opacity: 0;
+	margin: .33rem;
+	border: .5px solid rgba(#dbdbdb, 0.7);
+	border-radius: 4px;
+	background-color: rgba(#cdcdcd, 0.3);
+
+	#update_notification {
+		padding: .33rem;
+
+		.update_notification_text {
+			pointer-events: none;
+			padding: .33rem;
+			font-size: 1.3rem;
+			font-weight: 400;
+			color: #fff;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+	}
+	&:hover {
+		border: .5px solid #dbdbdb;
+		background-color: rgba(#cdcdcd, 0.5);
+		color: #333333;
+	}
+	.update_options {
+		visibility: collapse;
+		button {
+			display: none;
+		}
+	}
+	&.options {
+		.update_options {
+			visibility: visible;
+			button {
+				display: block;
+			}
+		}
+	}
+	#update_progress {
+		visibility: collapse;
+		.progress-bar {
+			display: none !important;
+		}
+	}
+	&.download {
+		#update_progress {
+			visibility: visible;
+			.progress-bar {
+				display: flex !important;
+			}
+		}
+	}
+	&.show {
+		animation-name: showNotification;
+		animation-duration: 1.25s;
+	}
+	&.lock {
+		animation-name: showUpdateNotification;
+		animation-duration: 1.25s;
+		animation-fill-mode: forwards;
+	}
+}
+@keyframes showUpdateNotification {
+	0% {opacity: 0;}
+	35% {opacity: .8;}
+	100% {opacity: 1;}
+}
 @keyframes showNotification {
 	0% {opacity: .5;}
 	15% {opacity: 1;}

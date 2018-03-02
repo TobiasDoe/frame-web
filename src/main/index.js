@@ -1,6 +1,8 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
+import { autoUpdater } from 'electron-updater';
+const path = require('path');
 
-// const { appUpdater } = require('./autoupdater');
+require('electron-debug')({ enabled: true, showDevTools: true });
 
 const Config = require('electron-config');
 const config = new Config();
@@ -38,7 +40,6 @@ function createWindow() {
 	/**
 	 * Initial window options
 	 */
-	console.log('app.version', app.getVersion());
 
 	Object.assign(browserOptions, config.get('winBounds'));
 	mainWindow = new BrowserWindow(browserOptions);
@@ -71,7 +72,18 @@ function createWindow() {
 		);
 	});
 
-	// autoUpdater.checkForUpdatesAndNotify();
+	// Wait a second for the window to exist before checking for updates.
+	if(process.env.NODE_ENV === 'development') {
+		autoUpdater.updateConfigPath = path.join(`${__dirname}`, 'dev-app-update.yml');
+		setTimeout(function () {
+			autoUpdater.checkForUpdates();
+		}, 1000);
+	}
+	if (process.env.NODE_ENV === 'production') {
+		setTimeout(function () {
+			autoUpdater.checkForUpdates();
+		}, 1000);
+	}
 }
 
 app.on('ready', createWindow);
@@ -89,33 +101,41 @@ app.on('activate', () => {
 });
 
 
-// TODO: DO THIS!!!
-/**
- * Auto Updater
- *
- * Uncomment the following code below and install `electron-updater` to
- * support auto updating. Code Signing with a valid certificate is required.
- * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-electron-builder.html#auto-updating
- */
-import { autoUpdater } from 'electron-updater';
-const path = require('path');
+// Auto Updater Events
 
-console.log(process.env.NODE_ENV);
-autoUpdater.on('update-downloaded', () => {
-	console.log('update-downloaded');
-	if (process.env.NODE_ENV === 'production') {
-		autoUpdater.quitAndInstall();
-	}
+autoUpdater.logger = require("electron-log");
+autoUpdater.logger.transports.file.level = "info";
+
+autoUpdater.on('checking-for-update', () => {
+	console.log('Checking for update...');
+	mainWindow.webContents.send('checking-for-update');
+});
+autoUpdater.on('update-available', (ev) => {
+	console.log('Update available.');
+	mainWindow.webContents.send('update-available', ev);
+});
+autoUpdater.on('update-not-available', (ev) => {
+	console.log('Update not available.');
+	mainWindow.webContents.send('update-not-available', ev);
+});
+autoUpdater.on('error', (ev, err) => {
+	console.log('Error in auto-updater.');
+	mainWindow.webContents.send('update-error', ev, err);
+});
+autoUpdater.on('download-progress', (ev, progressObj) => {
+	console.log('Downloading update...', progressObj);
+	mainWindow.webContents.send('download-progress', ev, progressObj);
+});
+autoUpdater.on('update-downloaded', (ev) => {
+	console.log('Update downloaded.');
+	mainWindow.webContents.send('update-downloaded', ev);
 });
 
-if(process.env.NODE_ENV === 'development') {
-	autoUpdater.updateConfigPath = path.join(`${__dirname}`, 'dev-app-update.yml');
+ipcMain.on('request-quit-and-install', () => {
+	// Wait 1 second, then quit and install
 	setTimeout(function () {
-		autoUpdater.checkForUpdates();
+		if (process.env.NODE_ENV === 'production') {
+			autoUpdater.quitAndInstall();
+		}
 	}, 1000);
-}
-if (process.env.NODE_ENV === 'production') {
-	setTimeout(function () {
-		autoUpdater.checkForUpdates();
-	}, 1000);
-}
+});
