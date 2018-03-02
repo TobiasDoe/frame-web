@@ -2,8 +2,6 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 const path = require('path');
 
-require('electron-debug')({ enabled: true, showDevTools: true });
-
 const Config = require('electron-config');
 const config = new Config();
 
