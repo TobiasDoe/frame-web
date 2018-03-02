@@ -8,7 +8,7 @@
 	</div>
 	<div id="main_notify_history">
 	</div>
-	<div id="update_notify_history" class="show lock" v-bind:class="!config.webControlsOpen ? 'hidden' : ''">
+	<div id="update_notify_history" class="" v-bind:class="!config.webControlsOpen ? 'hidden' : ''">
 		<div id="update_notification" class="w-100">
 			<div id="update_notification_text" class="update_notification_text">Info</div>
 			<div id="update_options"class="update_options d-flex justify-content-between">
