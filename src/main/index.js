@@ -1,3 +1,4 @@
+
 import { app, BrowserWindow, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 
@@ -82,14 +83,16 @@ function createWindow() {
 	// 		autoUpdater.checkForUpdates();
 	// 	}, 1000);
 	// }
+}
+
+app.on('ready', createWindow);
+app.once('ready', () => {
 	if (process.env.NODE_ENV === 'production') {
 		setTimeout(function () {
 			autoUpdater.checkForUpdates();
 		}, 1000);
 	}
-}
-
-app.on('ready', createWindow);
+});
 
 app.on('window-all-closed', () => {
 	if (process.platform !== 'darwin') {
@@ -111,34 +114,46 @@ autoUpdater.logger.transports.file.level = "info";
 
 autoUpdater.on('checking-for-update', () => {
 	console.log('Checking for update...');
-	mainWindow.webContents.send('checking-for-update');
+	if(mainWindow != null && mainWindow.webContents != null) {
+		mainWindow.webContents.send('checking-for-update');
+	}
 });
 autoUpdater.on('update-available', (ev) => {
 	console.log('Update available.');
-	mainWindow.webContents.send('update-available', ev);
+	if(mainWindow != null && mainWindow.webContents != null) {
+		mainWindow.webContents.send('update-available', ev);
+	}
 });
 autoUpdater.on('update-not-available', (ev) => {
 	console.log('Update not available.');
-	mainWindow.webContents.send('update-not-available', ev);
+	if(mainWindow != null && mainWindow.webContents != null) {
+		mainWindow.webContents.send('update-not-available', ev);
+	}
 });
 autoUpdater.on('error', (ev, err) => {
-	console.log('Error in auto-updater.');
-	mainWindow.webContents.send('update-error', ev, err);
+	console.log('There was a problem updating the application.');
+	if(mainWindow != null && mainWindow.webContents != null) {
+		mainWindow.webContents.send('update-error', ev, err);
+	}
 });
 autoUpdater.on('download-progress', (ev, progressObj) => {
 	console.log('Downloading update...', progressObj);
-	mainWindow.webContents.send('download-progress', ev, progressObj);
+	if(mainWindow != null && mainWindow.webContents != null) {
+		mainWindow.webContents.send('download-progress', ev, progressObj);
+	}
 });
-autoUpdater.on('update-downloaded', (ev) => {
+autoUpdater.on('update-downloaded', (ev, releaseNotes, releaseName) => {
 	console.log('Update downloaded.');
-	mainWindow.webContents.send('update-downloaded', ev);
+	if(mainWindow != null && mainWindow.webContents != null) {
+		mainWindow.webContents.send('update-downloaded', ev, releaseNotes, releaseName);
+	}
 });
 
 ipcMain.on('request-quit-and-install', () => {
-	// Wait 1 second, then quit and install
+	// Wait .5 seconds, then quit and install
 	setTimeout(function () {
 		if (process.env.NODE_ENV === 'production') {
 			autoUpdater.quitAndInstall();
 		}
-	}, 1000);
+	}, 500);
 });

@@ -1,7 +1,7 @@
 {
   "name": "frame",
-  "version": "0.1.9",
-  "tag": "v0.1.9",
+  "version": "0.1.8",
+  "tag": "v0.1.8",
   "homepage": "https://frame.onmyown.at",
   "keywords": [
     "frame",
@@ -104,7 +104,6 @@
     "electron-log": "latest",
     "electron-devtools-installer": "^2.2.0",
     "electron-updater": "^2.20.1",
-		"electron-rebuild": "^1.7.3",
     "extract-text-webpack-plugin": "^3.0.0",
     "file-loader": "^0.11.2",
     "html-webpack-plugin": "^2.30.1",

@@ -68,7 +68,7 @@ html, body {
 		}
 	}
 
-	&.modal_open {
+	&.web_controls_presented {
 		#web_content {
 			webview.active {
 				animation-name: blurWebView;
@@ -76,6 +76,10 @@ html, body {
 				animation-duration: .45s;
 				animation-timing-function: ease-in;
 			}
+		}
+
+		#update_notify_history {
+			visibility: visible;
 		}
 	}
 
