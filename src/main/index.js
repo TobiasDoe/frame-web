@@ -75,19 +75,16 @@ function createWindow() {
 			"$('body').removeClass('window_blured').addClass('window_focused');"
 		);
 	});
-
-	// Wait a second for the window to exist before checking for updates.
-	// if(process.env.NODE_ENV === 'development') {
-	// 	autoUpdater.updateConfigPath = path.join(`${__dirname}`, 'dev-app-update.yml');
-	// 	setTimeout(function () {
-	// 		autoUpdater.checkForUpdates();
-	// 	}, 1000);
-	// }
 }
 
 app.on('ready', createWindow);
 app.once('ready', () => {
-	if (process.env.NODE_ENV === 'production') {
+	if (process.env.NODE_ENV === 'development') {
+		autoUpdater.updateConfigPath = path.join(`${__dirname}`, 'dev-app-update.yml');
+		setTimeout(function () {
+			autoUpdater.checkForUpdates();
+		}, 1000);
+	} else  if (process.env.NODE_ENV === 'production') {
 		setTimeout(function () {
 			autoUpdater.checkForUpdates();
 		}, 1000);
@@ -156,4 +153,14 @@ ipcMain.on('request-quit-and-install', () => {
 			autoUpdater.quitAndInstall();
 		}
 	}, 500);
+});
+
+ipcMain.on('request-checking-for-update', () => {
+	console.log('request-checking-for-update');
+	if (process.env.NODE_ENV === 'development') {
+		autoUpdater.updateConfigPath = path.join(`${__dirname}`, 'dev-app-update.yml');
+		autoUpdater.checkForUpdates();
+	} else if (process.env.NODE_ENV === 'production') {
+		autoUpdater.checkForUpdates();
+	}
 });

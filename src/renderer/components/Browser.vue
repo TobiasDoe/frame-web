@@ -8,16 +8,16 @@
 	</div>
 	<div id="main_notify_history">
 	</div>
-	<div id="update_notify_history" v-bind:class="config.updateNotification.classes">
+	<div id="update_notify_history" v-bind:class="config.updateNotification.classes" v-if="config.webControlsOpen">
 		<div id="update_notification" class="w-100">
-			<div id="update_notification_text" class="update_notification_text">Info</div>
+			<div id="update_notification_text" class="update_notification_text">{{ config.updateNotification.text }}</div>
 			<div id="update_options"class="update_options d-flex justify-content-end mt-2">
-				<button id="btn_update_later" type="button" name="button" class="btn btn-outline-dark btn-lg mr-2">Later...</button>
-				<button id="btn_update_now" type="button" name="button" class="btn btn-outline-primary btn-lg px-5">Restart</button>
+				<button id="btn_update_later" type="button" name="button" class="btn btn-outline-dark btn-lg mr-2" v-on:click="config.updateNotification.hide()">Later...</button>
+				<button id="btn_update_now" type="button" name="button" class="btn btn-outline-primary btn-lg px-5" v-on:click="config.updateNotification.quitAndInstall()">Restart</button>
 			</div>
 		</div>
 		<div id="update_progress" class="update_progress progress" style="height: 4px;">
-			<div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+			<div class="progress-bar" role="progressbar" v-bind:style="'width:' + config.updateNotification.download.progress + '%'" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
 		</div>
 	</div>
 	<web-controls :globalMethods="globalMethods" :config="config" v-if="config.webControlsOpen"></web-controls>
@@ -37,10 +37,7 @@ const {
 import axios from 'axios';
 
 let body = null;
-// let webview = null;
-// let webViews = [];
 let webViewIdCount = -1;
-// let currentWebViewIndex = null;
 
 let progressBar = null;
 let progressMeter = null;
@@ -66,11 +63,24 @@ export default {
 				currentFocusSuggestions: -1,
 				queryHistory: [],
 				updateNotification: {
+					text: 'Info',
 					classes: {
-						show: true,
+						show: false,
 						lock: false,
 						options: false,
 						download: false
+					},
+					download: {
+						progress: 0
+					},
+					hide: function() {
+						this.classes.show = false;
+						this.classes.lock = false;
+						this.classes.options = false;
+						this.classes.download = false;
+					},
+					quitAndInstall: function() {
+						ipcRenderer.send('request-quit-and-install');
 					}
 				},
 				mainNotification: {
@@ -511,6 +521,58 @@ export default {
 
 		// window.onresize = function() {};
 
+
+// -----------------------------------------------------------
+// ---------------------AutoUpdate-Events---------------------
+// -----------------------------------------------------------
+		ipcRenderer.on('checking-for-update', function(event) {
+			console.log("checking-for-update");
+			self.config.updateNotification.text = "Checking for Updates...";
+
+			self.config.updateNotification.classes.show = false;
+			self.config.updateNotification.classes.lock = true;
+		});
+		ipcRenderer.on('update-available', function(event, autoUpdate) {
+			console.log("update-available", autoUpdate);
+			self.config.updateNotification.text = "New Update available";
+
+			self.config.updateNotification.classes.show = true;
+			self.config.updateNotification.classes.lock = false;
+		});
+		ipcRenderer.on('update-not-available', function(event, autoUpdate) {
+			console.log("update-not-available", autoUpdate);
+			self.config.updateNotification.text = "frame is up to date!";
+
+			self.config.updateNotification.classes.show = true;
+			self.config.updateNotification.classes.lock = false;
+		});
+		ipcRenderer.on('update-error', function(event, err) {
+			console.log("There was a problem updating the application", err);
+			self.config.updateNotification.text = "Update Error!";
+
+			self.config.updateNotification.classes.show = false;
+			self.config.updateNotification.classes.lock = true;
+		});
+		ipcRenderer.on('download-progress', function(event, progress) {
+			console.log("download-progress", progress);
+			self.config.updateNotification.text = "Downloading new Update...";
+			self.config.updateNotification.download.progress =  progress.percent;
+
+			self.config.updateNotification.classes.show = false;
+			self.config.updateNotification.classes.lock = true;
+			self.config.updateNotification.classes.download = true;
+		});
+		ipcRenderer.on('update-downloaded', function(event, autoUpdate, releaseNotes, releaseName) {
+			console.log("update-downloaded", autoUpdate);
+
+			self.config.updateNotification.text = "A new version has been downloaded.";
+
+			self.config.updateNotification.classes.show = false;
+			self.config.updateNotification.classes.lock = true;
+			self.config.updateNotification.classes.download = false;
+			self.config.updateNotification.classes.options = true;
+		});
+
 // -----------------------------------------------------------
 // -----------------------MenuItemCalls-----------------------
 // -----------------------------------------------------------
@@ -612,82 +674,6 @@ export default {
 				default:
 			}
 		}
-
-		// AutoUpdate Events
-		ipcRenderer.on('checking-for-update', function(event) {
-			console.log("checking-for-update");
-			let updateText = $('#update_notification_text');
-			let updateNotify = $('#update_notify_history');
-			updateText.text("Checking for Updates...");
-			// updateNotify.addClass('lock').removeClass('show');
-			self.config.updateNotification.classes.show = false;
-			self.config.updateNotification.classes.lock = true;
-		});
-		ipcRenderer.on('update-available', function(event, autoUpdate) {
-			console.log("update-available", autoUpdate);
-			let updateText = $('#update_notification_text');
-			let updateNotify = $('#update_notify_history');
-			updateText.text("New Update available");
-			// updateNotify.addClass('show').removeClass('lock');
-			self.config.updateNotification.classes.show = true;
-			self.config.updateNotification.classes.lock = false;
-		});
-		ipcRenderer.on('update-not-available', function(event, autoUpdate) {
-			console.log("update-not-available", autoUpdate);
-			let updateText = $('#update_notification_text');
-			let updateNotify = $('#update_notify_history');
-			updateText.text("frame is up to date!");
-			// updateNotify.addClass('show').removeClass('lock');
-			self.config.updateNotification.classes.show = true;
-			self.config.updateNotification.classes.lock = false;
-		});
-		ipcRenderer.on('update-error', function(event, err) {
-			console.log("There was a problem updating the application", err);
-			let updateText = $('#update_notification_text');
-			let updateNotify = $('#update_notify_history');
-			updateText.text("Update Error!");
-			// updateNotify.addClass('show').removeClass('lock');
-			self.config.updateNotification.classes.show = false;
-			self.config.updateNotification.classes.lock = true;
-		});
-		ipcRenderer.on('download-progress', function(event, progress) {
-			console.log("download-progress", progress);
-			let updateText = $('#update_notification_text');
-			let updateNotify = $('#update_notify_history');
-			let updateProgress = $('#update_progress .progress-bar');
-			updateProgress.css({ 'width': progress.percent + "%" });
-
-			updateText.text("Downloading new Update...");
-			// updateNotify.removeClass('show').addClass('lock').addClass('download');
-			self.config.updateNotification.classes.show = false;
-			self.config.updateNotification.classes.lock = true;
-			self.config.updateNotification.classes.download = true;
-		});
-		ipcRenderer.on('update-downloaded', function(event, autoUpdate, releaseNotes, releaseName) {
-			console.log("update-downloaded", autoUpdate);
-
-			let updateText = $('#update_notification_text');
-			let updateNotify = $('#update_notify_history');
-			let updateLater = $('#btn_update_later');
-			let updateNow = $('#btn_update_now');
-
-			updateText.text("A new version has been downloaded.");
-			// updateNotify.removeClass('show').removeClass('download').addClass('lock').addClass('options');
-			self.config.updateNotification.classes.show = false;
-			self.config.updateNotification.classes.lock = true;
-			self.config.updateNotification.classes.download = false;
-			self.config.updateNotification.classes.options = true;
-			updateLater.click(function(){
-				// updateNotify.removeClass('show').removeClass('download').removeClass('lock').removeClass('options');
-				self.config.updateNotification.classes.show = false;
-				self.config.updateNotification.classes.lock = false;
-				self.config.updateNotification.classes.download = false;
-				self.config.updateNotification.classes.options = false;
-			});
-			updateNow.click(function(){
-				ipcRenderer.send('request-quit-and-install');
-			});
-		});
 
 		// MENUTEMPLATE
 		const template = [{
@@ -880,6 +866,14 @@ export default {
 						role: 'about'
 					},
 					{
+						label: 'Check for Update...',
+						accelerator: '',
+						role: 'update-app',
+						click: function(menuItem, currentWindow) {
+							ipcRenderer.send('request-checking-for-update');
+						}
+					},
+					{
 						type: 'separator'
 					},
 					{
@@ -1054,7 +1048,6 @@ export default {
 
 #update_notify_history {
 	position: absolute;
-	visibility: hidden;
 	top: 0;
 	right: 0;
 	z-index: 201;
@@ -1106,7 +1099,7 @@ export default {
 	}
 	&.download {
 		#update_progress {
-			display: block;
+			display: flex;
 			.progress-bar {
 				display: flex !important;
 			}

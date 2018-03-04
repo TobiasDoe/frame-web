@@ -77,10 +77,6 @@ html, body {
 				animation-timing-function: ease-in;
 			}
 		}
-
-		#update_notify_history {
-			visibility: visible;
-		}
 	}
 
 	@keyframes blurWebView {
