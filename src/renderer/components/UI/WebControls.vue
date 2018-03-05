@@ -29,16 +29,16 @@
 			</form>
 		</div>
 		<div class="suggestions_bar w-75" id="suggestions_bar" v-if="(config.SearchSuggestions.length != 0 || config.URLSuggestions.length != 0)">
-			<div class="websites" v-if="config.SearchSuggestions.length != 0">
-				<div class="group" >websites</div>
+			<div class="websites">
+				<div class="group" v-if="config.SearchSuggestions.length != 0">websites</div>
 					<div class="" v-for="(suggestion, index) in config.URLSuggestions">
 						<div class="suggestion_row" v-bind:class="config.currentFocusSuggestions === index ? 'selected' : ''">
 							<span class="suggestion">{{ suggestion.suggestion }}</span><span class="info" v-if="suggestion.info != ''">{{ ' - ' + suggestion.info }}</span>
 						</div>
 					</div>
 			</div>
-			<div class="searches" v-if="config.URLSuggestions.length != 0">
-				<div class="group" >Search with Google</div>
+			<div class="searches">
+				<div class="group" v-if="config.URLSuggestions.length != 0">Search with Google</div>
 					<div class="" v-for="(suggestion, index) in config.SearchSuggestions">
 					<div class="suggestion_row" v-bind:class="config.currentFocusSuggestions === config.URLSuggestions.length + index ? 'selected' : ''">
 						<span class="suggestion">{{ suggestion.suggestion }}</span><span class="info" v-if="suggestion.info != ''">{{ ' - ' + suggestion.info }}</span>
