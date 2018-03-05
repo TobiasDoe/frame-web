@@ -4,7 +4,7 @@
 
 [logo]: https://github.com/TobiasDoe/frame-web/blob/master/build/icons/256x256.png "frame.png"
 
-> A KeyBoard ShortCut based WebBrowser with minimal visual UI.
+A KeyBoard ShortCut based WebBrowser with minimal visual UI.
 
 ### Keyboard shortcuts
 
