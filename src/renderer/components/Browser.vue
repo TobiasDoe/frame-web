@@ -665,11 +665,19 @@ export default {
 				case 'goBack':
 					if (self.config.webView.webview.canGoBack()) {
 						self.config.webView.webview.goBack();
+						$('#goback_box').addClass('show');
+						setTimeout(function () {
+							$('#goback_box').removeClass('show');
+						}, 1250);
 					}
 					break;
 				case 'goForward':
 					if (self.config.webView.webview.canGoForward()) {
 						self.config.webView.webview.goForward();
+						$('#goforward_box').addClass('show');
+						setTimeout(function () {
+							$('#goforward_box').removeClass('show');
+						}, 1250);
 					}
 					break;
 				case 'quitApp':
@@ -1051,10 +1059,18 @@ export default {
 #goback_box {
 	text-align: right;
 	left: -80px;
+	&.show {
+		animation-name: showBack;
+		animation-duration: 1.25s;
+	}
 }
 #goforward_box {
 	text-align: left;
 	right: -80px;
+	&.show {
+		animation-name: showForward;
+		animation-duration: 1.25s;
+	}
 }
 
 #web_content {
@@ -1223,4 +1239,17 @@ export default {
 	80% {opacity: 1;}
 	100% {opacity: 0;}
 }
+@keyframes showBack {
+	0% { left: 45px; opacity: 1; }
+	80% { left: 45px; opacity: 1; }
+	100% { left: -80px; opacity: .6; }
+}
+@keyframes showForward {
+	0% { right: 45px; opacity: 1; }
+	80% { right: 45px; opacity: 1; }
+	100% { right: -80px; opacity: .6; }
+}
+
+
+
 </style>
