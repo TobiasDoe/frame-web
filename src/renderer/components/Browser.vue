@@ -81,10 +81,12 @@ export default {
 						progress: 0
 					},
 					hide: function() {
-						this.classes.show = false;
-						this.classes.lock = false;
-						this.classes.options = false;
-						this.classes.download = false;
+						setTimeout(function () {
+							this.classes.show = false;
+							this.classes.lock = false;
+							this.classes.options = false;
+							this.classes.download = false;
+						}, 1250);
 					},
 					quitAndInstall: function() {
 						ipcRenderer.send('request-quit-and-install');
@@ -617,6 +619,7 @@ export default {
 
 			self.config.updateNotification.classes.show = true;
 			self.config.updateNotification.classes.lock = false;
+			self.config.updateNotification.hide();
 		});
 		ipcRenderer.on('update-error', function(event, err) {
 			console.log("There was a problem updating the application", err);
