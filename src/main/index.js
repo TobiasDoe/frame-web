@@ -1,5 +1,5 @@
 
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, webContents, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 
 const electronAdBlocker = require("electron-ad-blocker");
@@ -29,6 +29,7 @@ let browserOptions = {
 	backgroundColor: '#1D8FE1',
 	titleBarStyle: 'hidden',
 	title: 'frame'
+	// scrollBounce: true
 	// vibrancy: 'dark'
 	// icon: './build/icons/icon.icns'
 };
@@ -74,6 +75,34 @@ function createWindow() {
 		mainWindow.webContents.executeJavaScript(
 			"$('body').removeClass('window_blured').addClass('window_focused');"
 		);
+	});
+
+	mainWindow.on('swipe', function(event, direction) {
+		// console.log('on swipe', event, direction);
+		if(mainWindow != null && mainWindow.webContents != null) {
+			mainWindow.webContents.send('swipe', event, direction);
+		}
+	});
+	mainWindow.on('scroll-touch-begin', function(event) {
+		// console.log('on scroll-touch-begin', event);
+		// console.log('on scroll-touch-begin');
+		if(mainWindow != null && mainWindow.webContents != null) {
+			mainWindow.webContents.send('scroll-touch-begin', event);
+		}
+	});
+	mainWindow.on('scroll-touch-end', function(event) {
+		// console.log('on scroll-touch-end', event);
+		// console.log('on scroll-touch-end');
+		if(mainWindow != null && mainWindow.webContents != null) {
+			mainWindow.webContents.send('scroll-touch-end', event);
+		}
+	});
+	mainWindow.on('scroll-touch-edge', function(event) {
+		// console.log('on scroll-touch-edge', event);
+		// console.log('on scroll-touch-edge');
+		if(mainWindow != null && mainWindow.webContents != null) {
+			mainWindow.webContents.send('scroll-touch-edge', event);
+		}
 	});
 }
 

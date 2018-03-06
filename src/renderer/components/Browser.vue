@@ -1,6 +1,16 @@
 <template lang="html">
-<div id="main_container" class="main_frame position-ref" >
-	<div class="fullscreen web_content" id="web_content">
+<div id="main_container" class="main_frame position-ref">
+	<div id="goback_box" class="d-flex align-center justify-content-center align-items-center"
+		v-bind:style="'transform: translateX(' + config.gestureControl.translateX() + 'px);'"
+		v-bind:class="{'active': config.gestureControl.translateX() >= 125}">
+		<img src="../assets/chevron-left.svg" width="80" height="80" class="d-inline-block align-center" alt="">
+	</div>
+	<div id="goforward_box" class="d-flex align-center justify-content-center align-items-center"
+		v-bind:style="'transform: translateX(' + config.gestureControl.translateX() + 'px);'"
+		v-bind:class="{'active': config.gestureControl.translateX() <= -125}">
+		<img src="../assets/chevron-right.svg" width="80" height="80" class="d-inline-block align-center" alt="">
+	</div>
+	<div id="web_content" class="fullscreen web_content">
 		<!-- <webview class="full-height" :src="config.currentUrl" autosize></webview> -->
 	</div>
 	<div class="progress_bar" id="progress_bar">
@@ -29,10 +39,7 @@ import WebControls from './UI/WebControls';
 
 // console.log('test');
 const { electron, ipcRenderer, remote } = require('electron');
-const {
-	app,
-	Menu
-} = remote;
+const { app, Menu } = remote;
 
 import axios from 'axios';
 
@@ -97,6 +104,22 @@ export default {
 						setTimeout(function () {
 							$('.main_notify.' + rndClass).remove();
 						}, 3000);
+					}
+				},
+				gestureControl: {
+					hasBegun: false,
+					hasEnded: true,
+					overEdgeScroll: false,
+					distance: 0,
+					translateX: function() {
+						// return this.distance > 75 || this.distance < -75 ? -this.distance : 0;
+						let transition = 0;
+						if (this.distance > 75) {
+							transition = this.distance > 175 ? 125 : this.distance - 75;
+						} else if (this.distance < -75) {
+							transition = this.distance < -175 ? -125 : this.distance + 75;
+						}
+						return -transition;
 					}
 				},
 				bookmarks: [
@@ -204,6 +227,8 @@ export default {
 					// regView.addEventListener('close', handleExit);
 					// regView.addEventListener('did-fail-load', handleLoadAbort);
 					// regView.addEventListener('did-get-redirect-request', handleLoadRedirect);
+
+					regView.addEventListener('wheel', self.globalMethods.webviewHandler.mouseWheelEvent);
 				},
 				webviewHandler: {
 					handleNavigation: function(event) {
@@ -286,6 +311,21 @@ export default {
 						console.log("handleWillNavigate", event);
 						event.preventDefault();
 						// debugger;
+					},
+					mouseWheelEvent: function(event) {
+						// console.log("mouseWheelEvent", event);
+						let gestureControl = self.config.gestureControl;
+						let deltaX = event.deltaX;
+						// console.log('deltaX', deltaX);
+						let wasBelowZero = gestureControl.distance < 0 ? true : false;
+						if(gestureControl.hasBegun && gestureControl.overEdgeScroll && !gestureControl.hasEnded) {
+								gestureControl.distance += event.deltaX;
+						}
+						let isBelowZero = gestureControl.distance < 0 ? true : false;
+						console.log('distance', gestureControl.distance);
+						if(wasBelowZero !== isBelowZero){
+							gestureControl.overEdgeScroll = false;
+						}
 					}
 				},
 				presentTabByIndex: function(tabIndex) {
@@ -521,6 +561,38 @@ export default {
 
 		// window.onresize = function() {};
 
+// -----------------------------------------------------------
+// -------------------Scroll & Swipe Events-------------------
+// -----------------------------------------------------------
+		ipcRenderer.on('swipe', function(event, direction) {
+			console.log('on swipe', event, direction);
+			// console.log('on swipe');
+		});
+		ipcRenderer.on('scroll-touch-edge', function(event) {
+			// console.log('on scroll-touch-edge', event);
+			// console.log('on scroll-touch-edge');
+			self.config.gestureControl.overEdgeScroll = true;
+		});
+		ipcRenderer.on('scroll-touch-begin', function(event) {
+			console.log('on scroll-touch-begin', event);
+			// console.log('on scroll-touch-begin');
+			self.config.gestureControl.hasBegun = true;
+			self.config.gestureControl.hasEnded = false;
+		});
+		ipcRenderer.on('scroll-touch-end', function(event) {
+			console.log('on scroll-touch-end', event);
+			if(self.config.gestureControl.distance > 175) {
+				menuItemCall('goForward');
+			} else if(self.config.gestureControl.distance < -175) {
+				menuItemCall('goBack');
+			}
+			// console.log('on scroll-touch-end');
+			// console.log('scroll-touch-edge-distance', self.config.gestureControl.distance);
+			self.config.gestureControl.distance = 0;
+			self.config.gestureControl.hasBegun = false;
+			self.config.gestureControl.hasEnded = true;
+			self.config.gestureControl.overEdgeScroll = false;
+		});
 
 // -----------------------------------------------------------
 // ---------------------AutoUpdate-Events---------------------
@@ -962,8 +1034,32 @@ export default {
 </script>
 
 <style lang="scss">
+#goback_box, #goforward_box {
+	position: absolute;
+	height: 100vh;
+	width: 80px;
+	transition: all .25s;
+	// filter:drop-shadow(0 0 5px #000);
+	opacity: .6;
+	z-index: 1000;
+	pointer-events: none;
+
+	&.active {
+		opacity: 1;
+	}
+}
+#goback_box {
+	text-align: right;
+	left: -80px;
+}
+#goforward_box {
+	text-align: left;
+	right: -80px;
+}
 
 #web_content {
+	transition: all .25s;
+
 	webview {
 		visibility: hidden;
 		z-index: 0;
@@ -972,6 +1068,7 @@ export default {
 		height: 100vh;
 		top: 0;
 		left: 0;
+		// background: #fff;
 
 		&.active {
 			z-index: 1 !important;

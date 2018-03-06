@@ -31,6 +31,7 @@ html, body {
 	font-family: 'Raleway', sans-serif;
 	font-weight: 100;
 	margin: 0;
+	overflow: hidden;
 
 	font-size: 12px;
 
