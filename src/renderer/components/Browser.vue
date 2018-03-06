@@ -81,11 +81,12 @@ export default {
 						progress: 0
 					},
 					hide: function() {
+						let that = this;
 						setTimeout(function () {
-							this.classes.show = false;
-							this.classes.lock = false;
-							this.classes.options = false;
-							this.classes.download = false;
+							that.classes.show = false;
+							that.classes.lock = false;
+							that.classes.options = false;
+							that.classes.download = false;
 						}, 1250);
 					},
 					quitAndInstall: function() {
