@@ -25,7 +25,7 @@ window.Bootstrap = require('bootstrap');
 
 // console.log('version', app.getVersion());
 // console.log('name', app.getName());
-import "../libraries/fontawesome/js/fontawesome-all.js";
+import "../libraries/fontawesome/js/fontawesome-all.min.js";
 
 /* eslint-disable no-new */
 new Vue({

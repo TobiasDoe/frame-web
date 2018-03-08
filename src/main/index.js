@@ -79,6 +79,13 @@ function createWindow() {
 		);
 	});
 
+	mainWindow.on('leave-full-screen', function() {
+		console.log('leave-full-screen');
+		if(mainWindow != null && mainWindow.webContents != null) {
+			mainWindow.webContents.send('leave-full-screen');
+		}
+	});
+
 	mainWindow.on('swipe', (ev, direction) => {
 		console.log('on swipe', direction);
 		if(mainWindow != null && mainWindow.webContents != null) {

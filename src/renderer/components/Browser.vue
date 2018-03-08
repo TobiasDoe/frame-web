@@ -188,14 +188,17 @@ export default {
 					$('#tb_url').focus();
 					// wv.requestSearchSuggestions(urlBar.value);
 				},
-				closeWebControls: function() {
-					self.config.webControlsOpen = false;
-					body.removeClass('modal_open');
-					body.removeClass('web_controls_presented');
-					// $('#tb_url').blur();
+				closeWebControls: function(force) {
+					if(force || self.config.webView.title !== "New Tab" && self.config.webView.url !== ""){
+						self.config.webControlsOpen = false;
+						body.removeClass('modal_open');
+						body.removeClass('web_controls_presented');
 
-					$(self.config.webView.webview).blur();
-					$(self.config.webView.webview).focus();
+						// $('#tb_url').blur();
+
+						$(self.config.webView.webview).blur();
+						$(self.config.webView.webview).focus();
+					}
 				},
 				toggleFindControls: function() {
 					if(self.config.findControlsOpen && $("#find_text:focus").length > 0) {
@@ -221,6 +224,37 @@ export default {
 
 					$(self.config.webView.webview).blur();
 					$(self.config.webView.webview).focus();
+				},
+				exitHTMLFullscreen: function() {
+					self.config.webView.webview.executeJavaScript(
+						"var isInFullScreen = (document.fullscreenElement && document.fullscreenElement !== null) ||" +
+							"(document.webkitFullscreenElement && document.webkitFullscreenElement !== null) ||" +
+							"(document.mozFullScreenElement && document.mozFullScreenElement !== null) ||" +
+							"(document.msFullscreenElement && document.msFullscreenElement !== null);" +
+							"" +
+						"var docElm = document.documentElement;" +
+						"if (!isInFullScreen) {" +
+							"if (docElm.requestFullscreen) {" +
+								"docElm.requestFullscreen();" +
+							"} else if (docElm.mozRequestFullScreen) {" +
+								"docElm.mozRequestFullScreen();" +
+							"} else if (docElm.webkitRequestFullScreen) {" +
+								"docElm.webkitRequestFullScreen();" +
+							"} else if (docElm.msRequestFullscreen) {" +
+								"docElm.msRequestFullscreen();" +
+							"}" +
+						"} else {" +
+							"if (document.exitFullscreen) {" +
+								"document.exitFullscreen();" +
+							"} else if (document.webkitExitFullscreen) {" +
+								"document.webkitExitFullscreen();" +
+							"} else if (document.mozCancelFullScreen) {" +
+								"document.mozCancelFullScreen();" +
+							"} else if (document.msExitFullscreen) {" +
+								"document.msExitFullscreen();" +
+							"}" +
+						"}"
+					);
 				},
 				initNewWebView: function(target) {
 					console.log('initNewWebView');
@@ -461,7 +495,10 @@ export default {
 					self.config.webView.webview.loadURL(url);
 					self.config.currentUrl = url;
 					self.config.requestUrl = url;
-					self.globalMethods.closeWebControls();
+					console.log(self.config.webView.webview.history);
+					if(url !== "file://") {
+						self.globalMethods.closeWebControls(true);
+					}
 					// self.config.mainNotification.show(url);
 				},
 				searchTo: function(query) {
@@ -616,6 +653,11 @@ export default {
 
 		// window.onresize = function() {};
 
+		ipcRenderer.on('leave-full-screen', function() {
+			console.log("leave-full-screen");
+			self.globalMethods.exitHTMLFullscreen();
+		});
+
 // -----------------------------------------------------------
 // -------------------Scroll & Swipe Events-------------------
 // -----------------------------------------------------------
@@ -724,6 +766,7 @@ export default {
 					} else if (self.config.findControlsOpen) {
 						self.globalMethods.closeFindControls();
 					}
+					self.globalMethods.exitHTMLFullscreen();
 					break;
 				case 'openWebControls':
 					self.globalMethods.toggleWebControls();
