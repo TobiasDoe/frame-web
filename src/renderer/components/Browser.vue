@@ -2,12 +2,12 @@
 <div id="main_container" class="main_frame position-ref">
 	<div id="goback_box" class="d-flex align-center justify-content-center align-items-center"
 		v-bind:style="'transform: translateX(' + config.gestureControl.translateX() + 'px);'"
-		v-bind:class="{'active': config.gestureControl.translateX() >= 125}">
+		v-bind:class="{'active': config.gestureControl.translateX() >= 125, 'show': config.gestureControl.isBackAnimated }">
 		<img src="../assets/chevron-left.svg" width="80" height="80" class="d-inline-block align-center" alt="">
 	</div>
 	<div id="goforward_box" class="d-flex align-center justify-content-center align-items-center"
 		v-bind:style="'transform: translateX(' + config.gestureControl.translateX() + 'px);'"
-		v-bind:class="{'active': config.gestureControl.translateX() <= -125}">
+		v-bind:class="{'active': config.gestureControl.translateX() <= -125, 'show': config.gestureControl.isForwardAnimated }">
 		<img src="../assets/chevron-right.svg" width="80" height="80" class="d-inline-block align-center" alt="">
 	</div>
 	<div id="web_content" class="fullscreen web_content">
@@ -116,6 +116,8 @@ export default {
 					hasEnded: true,
 					overEdgeScroll: false,
 					distance: 0,
+					isBackAnimated: false,
+					isForwardAnimated: false,
 					translateX: function() {
 						// return this.distance > 75 || this.distance < -75 ? -this.distance : 0;
 						let transition = 0;
@@ -124,7 +126,22 @@ export default {
 						} else if (this.distance < -75) {
 							transition = this.distance < -175 ? -125 : this.distance + 75;
 						}
+						console.log('transition', -transition);
 						return -transition;
+					},
+					showBack: function() {
+						let that = this;
+						that.isBackAnimated = true;
+						setTimeout(function () {
+							that.isBackAnimated = false;
+						}, 1250);
+					},
+					showForward: function() {
+						let that = this;
+						that.isForwardAnimated = true;
+						setTimeout(function () {
+							that.isForwardAnimated = false;
+						}, 1250);
 					}
 				},
 				bookmarks: [
@@ -699,19 +716,13 @@ export default {
 				case 'goBack':
 					if (self.config.webView.webview.canGoBack()) {
 						self.config.webView.webview.goBack();
-						$('#goback_box').addClass('show');
-						setTimeout(function () {
-							$('#goback_box').removeClass('show');
-						}, 1250);
+						self.config.gestureControl.showBack();
 					}
 					break;
 				case 'goForward':
 					if (self.config.webView.webview.canGoForward()) {
 						self.config.webView.webview.goForward();
-						$('#goforward_box').addClass('show');
-						setTimeout(function () {
-							$('#goforward_box').removeClass('show');
-						}, 1250);
+						self.config.gestureControl.showForward();
 					}
 					break;
 				case 'quitApp':
@@ -1302,14 +1313,14 @@ export default {
 	100% {opacity: 0;}
 }
 @keyframes showBack {
-	0% { left: 45px; opacity: 1; }
-	80% { left: 45px; opacity: 1; }
-	100% { left: -80px; opacity: .6; }
+	0% { transform: translateX(125px); opacity: 1; }
+	80% { transform: translateX(125px); opacity: 1; }
+	100% { transform: translateX(0px); opacity: .6; }
 }
 @keyframes showForward {
-	0% { right: 45px; opacity: 1; }
-	80% { right: 45px; opacity: 1; }
-	100% { right: -80px; opacity: .6; }
+	0% { transform: translateX(-125px); opacity: 1; }
+	80% { transform: translateX(-125px); opacity: 1; }
+	100% { transform: translateX(0px); opacity: .6; }
 }
 
 
