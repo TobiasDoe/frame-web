@@ -82,7 +82,7 @@ html, body {
 
 	&.find_controls_presented {
 		webview {
-			height: calc(100vh - 3rem);
+			height: calc(100vh - 3rem) !important;
 		}
 	}
 

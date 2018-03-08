@@ -55,6 +55,7 @@ export default {
 	components: { WebControls, FindControls },
 	data: function() {
 		let self = this;
+		console.clear();
 		return {
 			config: {
 				homepage: "https://www.github.com",
@@ -63,6 +64,7 @@ export default {
 				requestUrl: "https://www.github.com",
 				webControlsOpen: false,
 				findControlsOpen: false,
+				findResult: null,
 				webViews: [],
 				webView: null,
 				currentWebViewIndex: null,
@@ -126,7 +128,6 @@ export default {
 						} else if (this.distance < -75) {
 							transition = this.distance < -175 ? -125 : this.distance + 75;
 						}
-						console.log('transition', -transition);
 						return -transition;
 					},
 					showBack: function() {
@@ -197,7 +198,7 @@ export default {
 					$(self.config.webView.webview).focus();
 				},
 				toggleFindControls: function() {
-					if(self.config.findControlsOpen) {
+					if(self.config.findControlsOpen && $("#find_text:focus").length > 0) {
 						self.globalMethods.closeFindControls();
 					} else {
 						self.globalMethods.openFindControls();
@@ -208,10 +209,14 @@ export default {
 
 					self.config.findControlsOpen = true;
 					body.addClass('find_controls_presented');
+					$('#find_text').focus();
+					$('#find_text').select();
 				},
 				closeFindControls: function() {
 					self.config.findControlsOpen = false;
 					body.removeClass('find_controls_presented');
+
+					self.config.webView.webview.stopFindInPage('keepSelection');
 
 					$(self.config.webView.webview).blur();
 					$(self.config.webView.webview).focus();
@@ -271,6 +276,7 @@ export default {
 					// regView.addEventListener('did-get-redirect-request', handleLoadRedirect);
 
 					regView.addEventListener('wheel', self.globalMethods.webviewHandler.mouseWheelEvent);
+					regView.addEventListener('found-in-page', self.globalMethods.webviewHandler.foundInPage);
 				},
 				webviewHandler: {
 					handleNavigation: function(event) {
@@ -364,10 +370,14 @@ export default {
 								gestureControl.distance += event.deltaX;
 						}
 						let isBelowZero = gestureControl.distance < 0 ? true : false;
-						console.log('distance', gestureControl.distance);
 						if(wasBelowZero !== isBelowZero){
 							gestureControl.overEdgeScroll = false;
 						}
+					},
+					foundInPage: function(event) {
+						// console.log('foundInPage', event.result);
+						let findControls = $('#find_controls');
+						self.config.findResult= event.result;
 					}
 				},
 				presentTabByIndex: function(tabIndex) {
@@ -630,13 +640,13 @@ export default {
 			self.config.gestureControl.overEdgeScroll = true;
 		});
 		ipcRenderer.on('scroll-touch-begin', function(event) {
-			console.log('on scroll-touch-begin', event);
+			// console.log('on scroll-touch-begin', event);
 			// console.log('on scroll-touch-begin');
 			self.config.gestureControl.hasBegun = true;
 			self.config.gestureControl.hasEnded = false;
 		});
 		ipcRenderer.on('scroll-touch-end', function(event) {
-			console.log('on scroll-touch-end', event);
+			// console.log('on scroll-touch-end', event);
 			if(self.config.gestureControl.distance > 175) {
 				menuItemCall('goForward');
 			} else if(self.config.gestureControl.distance < -175) {
@@ -707,6 +717,13 @@ export default {
 // -----------------------------------------------------------
 		function menuItemCall(call) {
 			switch (call) {
+				case 'closeControls':
+					if(self.config.webControlsOpen) {
+						self.globalMethods.closeWebControls();
+					} else if (self.config.findControlsOpen) {
+						self.globalMethods.closeFindControls();
+					}
+					break;
 				case 'openWebControls':
 					self.globalMethods.toggleWebControls();
 					// self.globalMethods.openWebControls();
@@ -855,11 +872,11 @@ export default {
 						}
 					},
 					{
-						label: 'Close Web Controls...',
+						label: 'Close Controls...',
 						accelerator: 'esc',
-						role: 'closeWebControls',
+						role: 'closeControls',
 						click: function(menuItem, currentWindow) {
-							menuItemCall('closeWebControls');
+							menuItemCall('closeControls');
 						}
 					},
 					{
@@ -908,15 +925,12 @@ export default {
 						type: 'separator'
 					},
 					{
-						label: 'Find',
-						submenu: [{
-							label: 'Find...',
-							accelerator: 'CmdOrCtrl+F',
-							role: 'openFindControls',
-							click: function(menuItem, currentWindow) {
-								menuItemCall('openFindControls');
-							}
-						}]
+						label: 'Find...',
+						accelerator: 'CmdOrCtrl+F',
+						role: 'openFindControls',
+						click: function(menuItem, currentWindow) {
+							menuItemCall('openFindControls');
+						}
 					}
 				]
 			},
