@@ -609,8 +609,20 @@ export default {
 // -------------------Scroll & Swipe Events-------------------
 // -----------------------------------------------------------
 		ipcRenderer.on('swipe', function(event, direction) {
-			console.log('on swipe', event, direction);
-			// console.log('on swipe');
+			console.log('on swipe', direction);
+			switch (direction) {
+				case "left":
+					menuItemCall('goForward');
+					break;
+				case "right":
+					menuItemCall('goBack');
+					break;
+				case "down":
+					break;
+				case "up":
+					self.globalMethods.toggleWebControls();
+					break;
+			}
 		});
 		ipcRenderer.on('scroll-touch-edge', function(event) {
 			// console.log('on scroll-touch-edge', event);

@@ -77,10 +77,10 @@ function createWindow() {
 		);
 	});
 
-	mainWindow.on('swipe', function(event, direction) {
-		// console.log('on swipe', event, direction);
+	mainWindow.on('swipe', (ev, direction) => {
+		console.log('on swipe', direction);
 		if(mainWindow != null && mainWindow.webContents != null) {
-			mainWindow.webContents.send('swipe', event, direction);
+			mainWindow.webContents.send('swipe', direction);
 		}
 	});
 	mainWindow.on('scroll-touch-begin', function(event) {
