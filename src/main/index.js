@@ -2,7 +2,9 @@
 import { app, BrowserWindow, webContents, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 
+
 const electronAdBlocker = require("electron-ad-blocker");
+require('electron-dl')();
 
 const path = require('path');
 
