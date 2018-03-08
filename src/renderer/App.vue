@@ -80,6 +80,12 @@ html, body {
 		}
 	}
 
+	&.find_controls_presented {
+		webview {
+			height: calc(100vh - 3rem);
+		}
+	}
+
 	@keyframes blurWebView {
 		0% { opacity: 1; filter: blur(.4rem); }
 		100% { opacity: .8; filter: blur(2rem); }

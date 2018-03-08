@@ -30,14 +30,15 @@
 			<div class="progress-bar" role="progressbar" v-bind:style="'width:' + config.updateNotification.download.progress + '%'" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
 		</div>
 	</div>
+	<find-controls :globalMethods="globalMethods" :config="config" v-if="config.findControlsOpen"></find-controls>
 	<web-controls :globalMethods="globalMethods" :config="config" v-if="config.webControlsOpen"></web-controls>
 </div>
 </template>
 
 <script>
 import WebControls from './UI/WebControls';
+import FindControls from './UI/FindControls';
 
-// console.log('test');
 const { electron, ipcRenderer, remote } = require('electron');
 const { app, Menu } = remote;
 
@@ -51,7 +52,7 @@ let progressMeter = null;
 
 export default {
 	name: 'browser',
-	components: { WebControls },
+	components: { WebControls, FindControls },
 	data: function() {
 		let self = this;
 		return {
@@ -61,6 +62,7 @@ export default {
 				currentTitle: "",
 				requestUrl: "https://www.github.com",
 				webControlsOpen: false,
+				findControlsOpen: false,
 				webViews: [],
 				webView: null,
 				currentWebViewIndex: null,
@@ -173,6 +175,26 @@ export default {
 					body.removeClass('modal_open');
 					body.removeClass('web_controls_presented');
 					// $('#tb_url').blur();
+
+					$(self.config.webView.webview).blur();
+					$(self.config.webView.webview).focus();
+				},
+				toggleFindControls: function() {
+					if(self.config.findControlsOpen) {
+						self.globalMethods.closeFindControls();
+					} else {
+						self.globalMethods.openFindControls();
+					}
+				},
+				openFindControls: function() {
+					self.globalMethods.closeWebControls();
+
+					self.config.findControlsOpen = true;
+					body.addClass('find_controls_presented');
+				},
+				closeFindControls: function() {
+					self.config.findControlsOpen = false;
+					body.removeClass('find_controls_presented');
 
 					$(self.config.webView.webview).blur();
 					$(self.config.webView.webview).focus();
@@ -332,6 +354,7 @@ export default {
 					}
 				},
 				presentTabByIndex: function(tabIndex) {
+					console.log('presentTabByIndex');
 					for(let wvIndex = 0; wvIndex < self.config.webViews.length; wvIndex++) {
 						let currWebView = self.config.webViews[wvIndex];
 						if(currWebView.index !== tabIndex) {
@@ -387,6 +410,7 @@ export default {
 					return tabIndex;
 				},
 				findPrevTabIndex: function() {
+					console.log('findPrevTabIndex');
 					let tabIndex = null;
 					let lastWv = null;
 					for (let wvIndex = 0; wvIndex < self.config.webViews.length; wvIndex++) {
@@ -663,6 +687,12 @@ export default {
 					// self.globalMethods.toggleWebControls();
 					// $("#web_content").removeClass('expose');
 					break;
+				case 'openFindControls':
+					self.globalMethods.toggleFindControls();
+					break;
+				case 'closeFindControls':
+					self.globalMethods.closeFindControls();
+					break;
 				case 'reloadSite':
 					self.config.webView.webview.reload();
 					break;
@@ -694,6 +724,9 @@ export default {
 					break;
 				case 'nextTab':
 					self.globalMethods.presentTabByIndex(self.globalMethods.findNextTabIndex());
+					break;
+				case 'previousTab':
+					self.globalMethods.presentTabByIndex(self.globalMethods.findPrevTabIndex());
 					break;
 				case 'closeTab':
 					// menuItemCall("quitApp");
@@ -768,14 +801,6 @@ export default {
 						role: 'newTab',
 						click: function(menuItem, currentWindow) {
 							menuItemCall('newTab');
-						}
-					},
-					{
-						label: 'Next Tab',
-						accelerator: 'Ctrl+tab',
-						role: 'nextTab',
-						click: function(menuItem, currentWindow) {
-							menuItemCall('nextTab');
 						}
 					},
 					{
@@ -855,12 +880,45 @@ export default {
 					},
 					{
 						role: 'selectall'
+					},
+					{
+						type: 'separator'
+					},
+					{
+						label: 'Find',
+						submenu: [{
+							label: 'Find...',
+							accelerator: 'CmdOrCtrl+F',
+							role: 'openFindControls',
+							click: function(menuItem, currentWindow) {
+								menuItemCall('openFindControls');
+							}
+						}]
 					}
 				]
 			},
 			{
 				label: 'View',
 				submenu: [{
+						label: 'Show Previous Tab',
+						accelerator: 'Shift+Ctrl+tab',
+						role: 'previousTab',
+						click: function(menuItem, currentWindow) {
+							menuItemCall('previousTab');
+						}
+					},
+					{
+						label: 'Show Next Tab',
+						accelerator: 'Ctrl+tab',
+						role: 'nextTab',
+						click: function(menuItem, currentWindow) {
+							menuItemCall('nextTab');
+						}
+					},
+					{
+						type: 'separator'
+					},
+					{
 						label: 'Reload Page',
 						accelerator: 'CmdOrCtrl+R',
 						role: 'reloadSite',
@@ -1088,7 +1146,7 @@ export default {
 		height: 100vh;
 		top: 0;
 		left: 0;
-		// background: #fff;
+		background: #fff;
 
 		&.active {
 			z-index: 1 !important;
