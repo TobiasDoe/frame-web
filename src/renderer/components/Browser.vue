@@ -214,6 +214,7 @@ export default {
 				},
 				closeFindControls: function() {
 					self.config.findControlsOpen = false;
+					self.config.findResult = null;
 					body.removeClass('find_controls_presented');
 
 					self.config.webView.webview.stopFindInPage('keepSelection');
