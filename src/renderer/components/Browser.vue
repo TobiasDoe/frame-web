@@ -287,8 +287,6 @@ export default {
 							$('#tb_url').select();
 						}
 					}
-					// self.config.openTabs(self.config.webViews);
-					// self.globalMethods.doLayout();
 				},
 				handleNewWindowCall: function(e) {
 					const protocol = require('url').parse(e.url).protocol
