@@ -1,5 +1,4 @@
 # frame
-[![Build Status](https://travis-ci.org/TobiasDoe/frame-web.svg?branch=master)](https://travis-ci.org/TobiasDoe/frame-web)
 
 ![logo]
 
