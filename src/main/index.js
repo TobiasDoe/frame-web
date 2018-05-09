@@ -56,7 +56,9 @@ function createWindow() {
 	mainWindow.once('ready-to-show', mainWindow.show);
 
 	mainWindow.on('close', () => {
-		config.set('winBounds', mainWindow.getBounds());
+		if(!mainWindow.isFullScreen()) {
+			config.set('winBounds', mainWindow.getBounds());
+		}
 	})
 
 	mainWindow.on('closed', () => {
