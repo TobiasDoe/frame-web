@@ -1,12 +1,7 @@
 {
   "name": "frame",
-<<<<<<< HEAD
   "version": "0.2.9",
   "tag": "v0.2.9",
-=======
-  "version": "0.2.8",
-  "tag": "v0.2.8",
->>>>>>> 9865f731fd9d2a5e258f5ff07832c85fc7b99a61
   "homepage": "https://frame.onmyown.at",
   "keywords": [
     "frame",
