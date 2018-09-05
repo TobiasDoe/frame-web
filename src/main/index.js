@@ -28,10 +28,11 @@ let browserOptions = {
 	frame: false,
 	show: false,
 	useContentSize: true,
-	backgroundColor: '#1D8FE1',
+	// backgroundColor: '#1D8FE1',
 	titleBarStyle: 'hidden',
-	title: 'frame'
+	title: 'frame',
 	// scrollBounce: true
+	// vibrancy: 'appearance-based'
 	// vibrancy: 'dark'
 	// icon: './build/icons/icon.icns'
 };
@@ -48,6 +49,9 @@ function createWindow() {
 
 	Object.assign(browserOptions, config.get('winBounds'));
 	mainWindow = new BrowserWindow(browserOptions);
+
+	mainWindow.setVibrancy('appearance-based')
+	// mainWindow.setVibrancy('ultra-dark')
 
 	electronAdBlocker.blockWindowAds(mainWindow);
 
