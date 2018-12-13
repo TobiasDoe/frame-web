@@ -1,38 +1,38 @@
-<template lang="html">
-<div id="main_container" class="main_frame position-ref">
-	<div id="goback_box" class="d-flex align-center justify-content-center align-items-center"
-		v-bind:style="'transform: translateX(' + config.gestureControl.translateX() + 'px);'"
-		v-bind:class="{'active': config.gestureControl.translateX() >= 125, 'show': config.gestureControl.isBackAnimated }">
-		<img src="../assets/chevron-left.svg" width="80" height="80" class="d-inline-block align-center" alt="">
-	</div>
-	<div id="goforward_box" class="d-flex align-center justify-content-center align-items-center"
-		v-bind:style="'transform: translateX(' + config.gestureControl.translateX() + 'px);'"
-		v-bind:class="{'active': config.gestureControl.translateX() <= -125, 'show': config.gestureControl.isForwardAnimated }">
-		<img src="../assets/chevron-right.svg" width="80" height="80" class="d-inline-block align-center" alt="">
-	</div>
-	<div id="web_content" class="fullscreen web_content">
-		<!-- <webview class="full-height" :src="config.currentUrl" autosize></webview> -->
-	</div>
-	<div class="progress_bar" id="progress_bar">
-		<span id="progress_meter"></span>
-	</div>
-	<div id="main_notify_history">
-	</div>
-	<div id="update_notify_history" v-bind:class="config.updateNotification.classes" v-if="config.webControlsOpen">
-		<div id="update_notification" class="w-100">
-			<div id="update_notification_text" class="update_notification_text">{{ config.updateNotification.text }}</div>
-			<div id="update_options"class="update_options d-flex justify-content-end mt-2">
-				<button id="btn_update_later" type="button" name="button" class="btn btn-outline-dark btn-lg mr-2" v-on:click="config.updateNotification.hide()">Later...</button>
-				<button id="btn_update_now" type="button" name="button" class="btn btn-outline-primary btn-lg px-5" v-on:click="config.updateNotification.quitAndInstall()">Restart</button>
+<template>
+	<div id="main_container" class="main_frame position-ref">
+		<div id="goback_box" class="d-flex align-center justify-content-center align-items-center"
+			v-bind:style="'transform: translateX(' + config.gestureControl.translateX() + 'px);'"
+			v-bind:class="{'active': config.gestureControl.translateX() >= 125, 'show': config.gestureControl.isBackAnimated }">
+			<img src="../assets/chevron-left.svg" width="80" height="80" class="d-inline-block align-center" alt="">
+		</div>
+		<div id="goforward_box" class="d-flex align-center justify-content-center align-items-center"
+			v-bind:style="'transform: translateX(' + config.gestureControl.translateX() + 'px);'"
+			v-bind:class="{'active': config.gestureControl.translateX() <= -125, 'show': config.gestureControl.isForwardAnimated }">
+			<img src="../assets/chevron-right.svg" width="80" height="80" class="d-inline-block align-center" alt="">
+		</div>
+		<div id="web_content" class="fullscreen web_content">
+			<!-- <webview class="full-height" :src="config.currentUrl" autosize></webview> -->
+		</div>
+		<div class="progress_bar" id="progress_bar">
+			<span id="progress_meter"></span>
+		</div>
+		<div id="main_notify_history">
+		</div>
+		<div id="update_notify_history" v-bind:class="config.updateNotification.classes" v-if="config.webControlsOpen">
+			<div id="update_notification" class="w-100">
+				<div id="update_notification_text" class="update_notification_text">{{ config.updateNotification.text }}</div>
+				<div id="update_options"class="update_options d-flex justify-content-end mt-2">
+					<button id="btn_update_later" type="button" name="button" class="btn btn-outline-dark btn-lg mr-2" v-on:click="config.updateNotification.hide()">Later...</button>
+					<button id="btn_update_now" type="button" name="button" class="btn btn-outline-primary btn-lg px-5" v-on:click="config.updateNotification.quitAndInstall()">Restart</button>
+				</div>
+			</div>
+			<div id="update_progress" class="update_progress progress" style="height: 4px;">
+				<div class="progress-bar" role="progressbar" v-bind:style="'width:' + config.updateNotification.download.progress + '%'" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
 			</div>
 		</div>
-		<div id="update_progress" class="update_progress progress" style="height: 4px;">
-			<div class="progress-bar" role="progressbar" v-bind:style="'width:' + config.updateNotification.download.progress + '%'" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-		</div>
+		<find-controls :globalMethods="globalMethods" :config="config" v-if="config.findControlsOpen"></find-controls>
+		<web-controls :globalMethods="globalMethods" :config="config" v-if="config.webControlsOpen"></web-controls>
 	</div>
-	<find-controls :globalMethods="globalMethods" :config="config" v-if="config.findControlsOpen"></find-controls>
-	<web-controls :globalMethods="globalMethods" :config="config" v-if="config.webControlsOpen"></web-controls>
-</div>
 </template>
 
 <script>
@@ -259,6 +259,18 @@ export default {
 				initNewWebView: function(target) {
 					console.log('initNewWebView');
 					let newWebView = $('<webview class="fresh_view" autosize webpreferences=""></webview>');
+
+					newWebView
+					.focusout(function() {
+						console.log("newWebView focusout", $( "*:focus" ));
+					})
+					.blur(function() {
+						console.log("newWebView blur", $( "*:focus" ));
+					})
+					.focus(function() {
+						console.log("newWebView focus", $( "*:focus" ));
+					});
+
 					let src = target != null ? target.url : 'file://'; // self.config.homepage;
 					newWebView.attr("src", src);
 					webViewIdCount++;

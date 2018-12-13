@@ -1,82 +1,82 @@
-<template lang="html">
-<div id="web_controls" class="web_controls">
-	<div class="inner_web_controls fullscreen d-flex w-100 flex-column align-items-center">
-		<h2 id="page_title" class="page_title flex-center mb-5 w-75">{{ config.webView.title }}</h2>
-		<div id="tab_bar" class="tab_bar w-75 d-flex justify-content-center">
-			<span class="tab_card navbar-brand px-3" v-for="webview in config.webViews"
-				v-bind:class="webview.index === config.currentWebViewIndex ? 'current' : ''"
-				v-on:click="goToTabByIndex(webview)">
-				<img class="align-middle mr-2" :src="webview.icon" alt="">
-				<span class="align-middle">{{ webview.title }}</span>
-			</span>
-		</div>
-		<div id="url_bar" class="url_bar w-75">
-			<form id="url_form" class="url_form">
-				<span id="tb_url_ghost" class="tb_url_ghost form-control form-control-lg"
-					v-on:click="presentUrlBar()"><span class="ghorst_text">{{ config.webView.url != '' ? config.webView.url : 'Search or enter website name' }}</span></span>
-				<input id="tb_url" type="text" value="" class="form-control form-control-lg"
-					v-model.lazy="config.webView.url"
-					v-on:focus="presentUrlBar()"
-					v-on:blur="presentGhost()"
-					v-on:keydown.shift.ctrl.tab.prevent="globalMethods.presentTabByIndex(globalMethods.findPrevTabIndex());"
-					v-on:keydown.ctrl.tab.prevent.stop="globalMethods.presentTabByIndex(globalMethods.findNextTabIndex());"
-					v-on:keyup="globalMethods.urlBarKeyDown"
-					v-on:keydown.tab.prevent=""
-					v-on:keydown.38.prevent=""
-					v-on:keydown.40.prevent=""
-					v-on:keydown.enter.prevent=""
-					v-on:input="onUrlBarChange()">
-				<!-- <input type="submit" value="Go" hidden v-on:click.prevent="globalMethods.submitRequestUrl(config.webView.url)"> -->
-			</form>
-		</div>
-		<div class="suggestions_bar w-75" id="suggestions_bar" v-if="(config.SearchSuggestions.length != 0 || config.URLSuggestions.length != 0)">
-			<div class="websites">
-				<div class="group" v-if="config.SearchSuggestions.length != 0">websites</div>
-					<div class="" v-for="(suggestion, index) in config.URLSuggestions">
-						<div class="suggestion_row" v-bind:class="config.currentFocusSuggestions === index ? 'selected' : ''">
+<template>
+	<div id="web_controls" class="web_controls">
+		<div class="inner_web_controls fullscreen d-flex w-100 flex-column align-items-center">
+			<h2 id="page_title" class="page_title flex-center mb-5 w-75">{{ config.webView.title }}</h2>
+			<div id="tab_bar" class="tab_bar w-75 d-flex justify-content-center">
+				<span class="tab_card navbar-brand px-3" v-for="webview in config.webViews"
+					v-bind:class="webview.index === config.currentWebViewIndex ? 'current' : ''"
+					v-on:click="goToTabByIndex(webview)">
+					<img class="align-middle mr-2" :src="webview.icon" alt="">
+					<span class="align-middle">{{ webview.title }}</span>
+				</span>
+			</div>
+			<div id="url_bar" class="url_bar w-75">
+				<form id="url_form" class="url_form">
+					<span id="tb_url_ghost" class="tb_url_ghost form-control form-control-lg"
+						v-on:click="presentUrlBar()"><span class="ghorst_text">{{ config.webView.url != '' ? config.webView.url : 'Search or enter website name' }}</span></span>
+					<input id="tb_url" type="text" value="" class="form-control form-control-lg"
+						v-model.lazy="config.webView.url"
+						v-on:focus="presentUrlBar()"
+						v-on:blur="presentGhost()"
+						v-on:keydown.shift.ctrl.tab.prevent="globalMethods.presentTabByIndex(globalMethods.findPrevTabIndex());"
+						v-on:keydown.ctrl.tab.prevent.stop="globalMethods.presentTabByIndex(globalMethods.findNextTabIndex());"
+						v-on:keyup="globalMethods.urlBarKeyDown"
+						v-on:keydown.tab.prevent=""
+						v-on:keydown.38.prevent=""
+						v-on:keydown.40.prevent=""
+						v-on:keydown.enter.prevent=""
+						v-on:input="onUrlBarChange()">
+					<!-- <input type="submit" value="Go" hidden v-on:click.prevent="globalMethods.submitRequestUrl(config.webView.url)"> -->
+				</form>
+			</div>
+			<div class="suggestions_bar w-75" id="suggestions_bar" v-if="(this.urlBarHasFocus === true && (config.SearchSuggestions.length != 0 || config.URLSuggestions.length != 0))">
+				<div class="websites">
+					<div class="group" v-if="config.SearchSuggestions.length != 0">websites</div>
+						<div class="" v-for="(suggestion, index) in config.URLSuggestions">
+							<div class="suggestion_row" v-bind:class="config.currentFocusSuggestions === index ? 'selected' : ''">
+								<span class="suggestion">{{ suggestion.suggestion }}</span><span class="info" v-if="suggestion.info != ''">{{ ' - ' + suggestion.info }}</span>
+							</div>
+						</div>
+				</div>
+				<div class="searches">
+					<div class="group" v-if="config.URLSuggestions.length != 0">Search with Google</div>
+						<div class="" v-for="(suggestion, index) in config.SearchSuggestions">
+						<div class="suggestion_row" v-bind:class="config.currentFocusSuggestions === config.URLSuggestions.length + index ? 'selected' : ''">
 							<span class="suggestion">{{ suggestion.suggestion }}</span><span class="info" v-if="suggestion.info != ''">{{ ' - ' + suggestion.info }}</span>
 						</div>
 					</div>
+				</div>
 			</div>
-			<div class="searches">
-				<div class="group" v-if="config.URLSuggestions.length != 0">Search with Google</div>
-					<div class="" v-for="(suggestion, index) in config.SearchSuggestions">
-					<div class="suggestion_row" v-bind:class="config.currentFocusSuggestions === config.URLSuggestions.length + index ? 'selected' : ''">
-						<span class="suggestion">{{ suggestion.suggestion }}</span><span class="info" v-if="suggestion.info != ''">{{ ' - ' + suggestion.info }}</span>
-					</div>
+			<div class="bookmark_bar mt-5 w-75 d-flex flex-row flex-wrap justify-content-around" id="bookmark_bar" v-if="(config.SearchSuggestions.length == 0 && config.URLSuggestions.length == 0)">
+				<div class="bookmark text-center p-3" v-for="(bookmark, index) in config.bookmarks">
+					<span class="shortcut">{{ '⌘' + (index+1)}}</span>
+					<span class="title">{{ bookmark.title }}</span>
 				</div>
 			</div>
 		</div>
-		<div class="bookmark_bar mt-5 w-75 d-flex flex-row flex-wrap justify-content-around" id="bookmark_bar" v-if="(config.SearchSuggestions.length == 0 && config.URLSuggestions.length == 0)">
-			<div class="bookmark text-center p-3" v-for="(bookmark, index) in config.bookmarks">
-				<span class="shortcut">{{ '⌘' + (index+1)}}</span>
-				<span class="title">{{ bookmark.title }}</span>
+		<div class="action_bar w-25 d-flex flex-row flex-wrap justify-content-around" id="bookmark_bar">
+			<div class="action text-center" data-toggle="tooltip" data-placement="top" title="New Tab">
+				<span class="shortcut">⌘T</span>
+				<span class="icon">#T</span>
+				<span class="title">New Tab</span>
+			</div>
+			<div class="action text-center" data-toggle="tooltip" data-placement="top" title="Go Back">
+				<span class="shortcut">⌘Left</span>
+				<span class="icon">#Left</span>
+				<span class="title">Go Back</span>
+			</div>
+			<div class="action text-center" data-toggle="tooltip" data-placement="top" title="Go Forward">
+				<span class="shortcut">⌘Right</span>
+				<span class="icon">#Right</span>
+				<span class="title">Go Forward</span>
+			</div>
+			<div class="action text-center" data-toggle="tooltip" data-placement="top" title="Reload">
+				<span class="shortcut">⌘R</span>
+				<span class="icon">#R</span>
+				<span class="title">Reload</span>
 			</div>
 		</div>
 	</div>
-	<div class="action_bar w-25 d-flex flex-row flex-wrap justify-content-around" id="bookmark_bar">
-		<div class="action text-center" data-toggle="tooltip" data-placement="top" title="New Tab">
-			<span class="shortcut">⌘T</span>
-			<span class="icon">#T</span>
-			<span class="title">New Tab</span>
-		</div>
-		<div class="action text-center" data-toggle="tooltip" data-placement="top" title="Go Back">
-			<span class="shortcut">⌘Left</span>
-			<span class="icon">#Left</span>
-			<span class="title">Go Back</span>
-		</div>
-		<div class="action text-center" data-toggle="tooltip" data-placement="top" title="Go Forward">
-			<span class="shortcut">⌘Right</span>
-			<span class="icon">#Right</span>
-			<span class="title">Go Forward</span>
-		</div>
-		<div class="action text-center" data-toggle="tooltip" data-placement="top" title="Reload">
-			<span class="shortcut">⌘R</span>
-			<span class="icon">#R</span>
-			<span class="title">Reload</span>
-		</div>
-	</div>
-</div>
 </template>
 
 <script>
@@ -84,7 +84,7 @@ export default {
 	props: ['globalMethods', 'config'],
 	data: function() {
 		return {
-			//
+			urlBarHasFocus: false
 		};
 	},
 	mounted() {
@@ -106,12 +106,14 @@ export default {
 			urlForm.removeClass('ghost_active');
 			$(this.config.webView.webview).blur();
 			urlBar.focus();
+			this.urlBarHasFocus = true;
 			urlBar.select();
 		},
 		presentGhost: function() {
 			let urlForm = $('#url_form');
 			let urlBar = $('#tb_url');
 			urlBar.blur();
+			// this.urlBarHasFocus = false;
 			urlForm.addClass('ghost_active');
 		},
 		onUrlBarChange: function() {
@@ -183,8 +185,8 @@ $web_controls_blur_opacity: .8;
 
 					background-color: rgba(#eeeeee, 0.55);
 
-					border-color: #f43b47;
-					box-shadow: 0 0 10px 2px rgba(#453a94, 0.7);
+					border-color: #fff;
+					// box-shadow: 0 0 10px 2px rgba(#fff, 0.7);
 
 					&::-webkit-input-placeholder { color:transparent; }
 				}
@@ -193,8 +195,8 @@ $web_controls_blur_opacity: .8;
 				cursor: auto;
 				background-color: rgba(#cdcdcd, 0.5);
 
-				border-color: rgba(#ec545e, 1);
-				box-shadow: 0 0 5px 2px rgba(#655bad, 0.7);
+				border-color: rgba(#fff, 1);
+				box-shadow: 0 0 0 0 rgba(#fff, 0.0);
 			}
 
 			#tb_url_ghost {
@@ -240,7 +242,8 @@ $web_controls_blur_opacity: .8;
 
 	.suggestions_bar {
 		padding-left: 6rem;
-		text-shadow: 0 0 .5px  #000;
+		// text-shadow: 0 0 .5px  #000;
+		font-weight: 300;
 
 		// color: #111;
 		// border: .5px solid #dbdbdb !important;
@@ -251,21 +254,24 @@ $web_controls_blur_opacity: .8;
 		.suggestion_row {
 			font-size: 1.8rem;
 
-			&.selected {
+			&.selected, &:hover {
 				text-shadow: none;
 				.suggestion {
-					background-image: linear-gradient(60deg, #e8202d 0%, #8f121b 100%);
+					cursor: pointer;
+					background-image: linear-gradient(60deg, #e8202d 0%, #D42B36 100%);
 					-webkit-background-clip: text;
 					-webkit-text-fill-color: transparent;
-					font-weight: 400;
+					// font-weight: 400;
 				}
 				.info {
+					cursor: pointer;
 					background-image: linear-gradient(60deg, #e6e3e3 0%, #fff 100%);
 					-webkit-background-clip: text;
 					-webkit-text-fill-color: transparent;
-					font-weight: 400;
+					// font-weight: 400;
 				}
 			}
+
 		}
 	}
 	.bookmark_bar {

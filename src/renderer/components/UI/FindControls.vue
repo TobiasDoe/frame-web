@@ -1,20 +1,21 @@
-<template lang="html">
-<div id="find_controls" class="find_controls d-flex flex-row align-items-center" v-bind:class="{'match': config.findResult != null && config.findResult.matches > 0, 'nomatch': config.findResult != null && config.findResult.matches <= 0 }">
-	<input id="find_text" type="text" value="" class="form-control form-control-lg"
-		v-on:input="onFindInputChange()"
-		v-on:keydown="findKeyDown()">
-	<div id="match_count" class="match_count mr-3">{{ config.findResult != null && config.findResult.matches > 0 ? config.findResult.matches > 1 ? config.findResult.matches + ' matches' : config.findResult.matches + ' match' : '' }}</div>
-	<div id="prev_match" class="prev_match match_btn d-flex align-items-center justify-content-center"
-		v-if="config.findResult != null && config.findResult.matches > 1"
-		v-on:click.prevent="findInPage(false);">
-		<i class="fas fa-angle-left"></i>
+<template>
+	<div id="find_controls" class="find_controls d-flex flex-row align-items-center" v-bind:class="{'match': config.findResult != null && config.findResult.matches > 0, 'nomatch': config.findResult != null && config.findResult.matches <= 0 }">
+		<input id="find_text" type="text" value="" class="form-control form-control-lg" placeholder="Search"
+			v-on:focus="presentFindBar()"
+			v-on:input="onFindInputChange()"
+			v-on:keydown="findKeyDown()">
+		<div id="match_count" class="match_count mr-3">{{ config.findResult != null && config.findResult.matches > 0 ? config.findResult.matches > 1 ? config.findResult.matches + ' matches' : config.findResult.matches + ' match' : '' }}</div>
+		<div id="prev_match" class="prev_match match_btn d-flex align-items-center justify-content-center"
+			v-if="config.findResult != null && config.findResult.matches > 1"
+			v-on:click.prevent="findInPage(false);">
+			<i class="fas fa-angle-left"></i>
+		</div>
+		<div id="next_match"  class="next_match match_btn d-flex align-items-center justify-content-center"
+			v-if="config.findResult != null && config.findResult.matches > 1"
+			v-on:click.prevent="findInPage(true);">
+			<i class="fas fa-angle-right"></i>
+		</div>
 	</div>
-	<div id="next_match"  class="next_match match_btn d-flex align-items-center justify-content-center"
-		v-if="config.findResult != null && config.findResult.matches > 1"
-		v-on:click.prevent="findInPage(true);">
-		<i class="fas fa-angle-right"></i>
-	</div>
-</div>
 </template>
 
 <script>
@@ -27,16 +28,23 @@ export default {
 	},
 	mounted() {
 		console.log('#find_controls mounted.');
-		this.tbFindGotFocus();
-
+		let self = this;
+		self.tbFindGotFocus();
 	},
 	methods: {
 		tbFindGotFocus: function() {
+			this.presentFindBar();
+		},
+		presentFindBar: function() {
 			let findForm = $('#find_controls');
-			let findText = $('#find_text');
+			let findText =  $('#find_text');
 
-			findText.focus();
-			findText.select();
+			$(this.config.webView.webview).blur();
+			setTimeout(function () {
+				findText[0].focus();
+				findText.focus();
+				findText.select();
+			}, 100);
 		},
 		onFindInputChange: function() {
 			let webview = this.config.webView.webview;
@@ -92,7 +100,7 @@ export default {
 	height: 3rem;
 	z-index: 1;
 	border-top: .5px solid #858585;
-	background-image: linear-gradient(60deg, #e7e7e7 0%, #cdcdcd 100%);
+	// background-image: linear-gradient(60deg, #e7e7e7 0%, #cdcdcd 100%);
 	// background-image: linear-gradient(60deg, #e84d4d 0%, #e83434 100%);
 
 	#find_text {
@@ -100,6 +108,15 @@ export default {
 		border: none;
 		outline: none;
 		box-shadow: none;
+		color: #fff;
+
+		&::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+			color: white;
+			background-image: linear-gradient(60deg, #e6e3e3 0%, #fff 100%);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			opacity: .7; /* Firefox */
+		}
 	}
 
 	#match_count {
@@ -140,7 +157,7 @@ export default {
 
 	&.match {
 		border-top: .5px solid #007340;
-		background-image: linear-gradient(60deg, #3cba92 0%, #0ba360 100%);
+		background-image: linear-gradient(60deg, rgba(60, 186, 146, 0.25) 0%, rgba(60, 186, 146, 0.25) 100%);
 
 		#find_text {
 			color: #fff;
@@ -149,7 +166,7 @@ export default {
 
 	&.nomatch {
 		border-top: .5px solid #670505;
-		background-image: linear-gradient(60deg, #ba3c3c 0%, #a30b0b 100%);
+		background-image: linear-gradient(60deg, rgba(186, 60, 60, 0.25) 0%, rgba(163, 11, 11, 0.25) 100%);
 
 		#find_text {
 			color: #fff;

@@ -1,9 +1,7 @@
-
-import { app, BrowserWindow, webContents, ipcMain } from 'electron';
+import { app, BrowserWindow, webContents, ipcMain } from 'electron'
 import { autoUpdater } from 'electron-updater';
 
-
-const electronAdBlocker = require("electron-ad-blocker");
+// const electronAdBlocker = require("electron-ad-blocker");
 require('electron-dl')();
 
 const path = require('path');
@@ -25,7 +23,7 @@ let browserOptions = {
 	height: 1040,
 	minWidth: 400,
 	minHeight: 250,
-	frame: false,
+	// frame: false,
 	show: false,
 	useContentSize: true,
 	// backgroundColor: '#1D8FE1',
@@ -33,7 +31,7 @@ let browserOptions = {
 	title: 'frame',
 	// scrollBounce: true
 	// vibrancy: 'appearance-based'
-	// vibrancy: 'dark'
+	vibrancy: 'ultra-dark'
 	// icon: './build/icons/icon.icns'
 };
 
@@ -42,20 +40,17 @@ if(process.env.NODE_ENV === 'development') {
 	browserOptions.webPreferences = { webSecurity: false };
 }
 
-function createWindow() {
+
+function createWindow () {
 	/**
 	 * Initial window options
 	 */
-
 	Object.assign(browserOptions, config.get('winBounds'));
 	mainWindow = new BrowserWindow(browserOptions);
 
-	mainWindow.setVibrancy('appearance-based')
-	// mainWindow.setVibrancy('ultra-dark')
+	// electronAdBlocker.blockWindowAds(mainWindow);
 
-	electronAdBlocker.blockWindowAds(mainWindow);
-
-	mainWindow.loadURL(winURL);
+	mainWindow.loadURL(winURL)
 
 	mainWindow.once('ready-to-show', mainWindow.show);
 
@@ -147,7 +142,7 @@ app.on('activate', () => {
 	}
 });
 
-
+console.log("node version", process.versions.node);
 // Auto Updater Events
 
 autoUpdater.logger = require("electron-log");
