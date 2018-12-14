@@ -21,8 +21,8 @@ let mainWindow;
 let browserOptions = {
 	width: 1664,
 	height: 1040,
-	minWidth: 400,
-	minHeight: 250,
+	minWidth: 500,
+	minHeight: 520,
 	// frame: false,
 	show: false,
 	useContentSize: true,
