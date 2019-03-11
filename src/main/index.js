@@ -35,6 +35,24 @@ let browserOptions = {
 	// icon: './build/icons/icon.icns'
 };
 
+// let tabBrowserOptions = {
+// 	// width: 1664,
+// 	// height: 1040,
+// 	// minWidth: 500,
+// 	// minHeight: 520,
+// 	frame: false,
+// 	show: true,
+// 	transparent: true
+// 	// useContentSize: true,
+// 	// // backgroundColor: '#1D8FE1',
+// 	// titleBarStyle: 'hidden',
+// 	// title: 'frame',
+// 	// // scrollBounce: true
+// 	// // vibrancy: 'appearance-based'
+// 	// // vibrancy: 'ultra-dark'
+// 	// // icon: './build/icons/icon.icns'
+// };
+
 const winURL = process.env.NODE_ENV === 'development' ? `http://localhost:9080` : `file://${__dirname}/index.html`;
 if(process.env.NODE_ENV === 'development') {
 	browserOptions.webPreferences = { webSecurity: false };
@@ -48,9 +66,12 @@ function createWindow () {
 	Object.assign(browserOptions, config.get('winBounds'));
 	mainWindow = new BrowserWindow(browserOptions);
 
+	// Object.assign(tabBrowserOptions, { x: 0, y: 0, parent: mainWindow, show: true });
+	// let tabWindow = new BrowserWindow(tabBrowserOptions);
 	// electronAdBlocker.blockWindowAds(mainWindow);
 
 	mainWindow.loadURL(winURL)
+	// tabWindow.loadURL(winURL)
 
 	mainWindow.once('ready-to-show', mainWindow.show);
 
