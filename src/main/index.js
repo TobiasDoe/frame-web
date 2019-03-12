@@ -1,5 +1,5 @@
 // import { app, BrowserWindow, webContents, ipcMain, session } from 'electron'
-import { app, BrowserWindow, ipcMain, session } from 'electron'
+import { app, BrowserWindow, ipcMain, session, systemPreferences } from 'electron'
 import { autoUpdater } from 'electron-updater';
 
 // let ABPFilterParser = require('abp-filter-parser');
@@ -20,6 +20,8 @@ if (process.env.NODE_ENV !== 'development') {
 	global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
 
+let vibrancy = systemPreferences.isDarkMode() ? 'ultra-dark' : 'medium-light';
+
 let mainWindow;
 let browserOptions = {
 	width: 1490,
@@ -34,7 +36,8 @@ let browserOptions = {
 	title: 'frame',
 	// scrollBounce: true
 	// vibrancy: 'appearance-based'
-	vibrancy: 'ultra-dark'
+	// vibrancy: 'ultra-dark'
+	vibrancy: vibrancy
 	// icon: './build/icons/icon.icns'
 };
 
