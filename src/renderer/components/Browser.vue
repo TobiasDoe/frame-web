@@ -1288,7 +1288,9 @@ export default {
 		opacity: 0;
 		pointer-events: none;
 		border: 0 solid #fff;
-		background-image: linear-gradient(60deg, #3d3393 0%, #2b76b9 37%, #2cacd1 65%, #35eb93 100%);
+
+		background-image: linear-gradient(60deg, #505050 0%, #2E2E2E 100%);
+		// background-image: linear-gradient(60deg, #3d3393 0%, #2b76b9 37%, #2cacd1 65%, #35eb93 100%);
 		// background-image: linear-gradient(60deg, rgba(#474394, 0.7) 0%, rgba(#2a5a7c, 0.7) 37%, rgba(#23b8d0, 0.7) 65%, rgba(#3dc986, 0.7) 100%);
 		// background-image: linear-gradient(to right, #07eb7d 0%, #fb8800 40%, #fb8800 60%, #fb4d82 100%);
 		// background-image: linear-gradient(to right, rgba(#07eb7d, 0.5) 0%, rgba(#fb8800, 0.5) 40%, rgba(#fb8800, 0.5) 60%, rgba(#fb4d82, 0.5) 100%);
