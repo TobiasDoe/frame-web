@@ -68,7 +68,7 @@ function createWindow () {
 	/**
 	 * Initial window options
 	 */
-	// Object.assign(browserOptions, config.get('winBounds'));
+	Object.assign(browserOptions, config.get('winBounds'));
 	mainWindow = new BrowserWindow(browserOptions);
 
 	// Object.assign(tabBrowserOptions, { x: 0, y: 0, parent: mainWindow, show: true });
