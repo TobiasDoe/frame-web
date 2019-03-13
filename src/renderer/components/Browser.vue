@@ -271,12 +271,23 @@ export default {
 						console.log("newWebView focus", $(this).attr('id'), $( "*:focus" )[0]);
 					});
 
+					newWebView.on("dom-ready", event => {
+						console.log(event.target);
+						// Remove this once https://github.com/electron/electron/issues/14474 is fixed
+						if(!self.config.webControlsOpen && $(event.target).hasClass('active')) {
+							console.log('focus hack');
+							self.config.webView.webview.blur();
+							self.config.webView.webview.focus();
+						}
+					});
+
 					let src = target != null ? target.url : 'file://'; // self.config.homepage;
 					webViewIdCount++;
 					newWebView.attr("id", "webview_" + webViewIdCount);
 					newWebView.attr("wv_index", webViewIdCount);
 					newWebView.attr("src", src);
 					$("#web_content").append(newWebView);
+
 					let currentWV = document.querySelector("#webview_" + webViewIdCount);
 					self.globalMethods.registerWebViewEventListeners(currentWV);
 					let webViewObject = {
@@ -510,7 +521,7 @@ export default {
 					self.config.webView.webview.loadURL(url);
 					self.config.currentUrl = url;
 					self.config.requestUrl = url;
-					console.log(self.config.webView.webview.history);
+					// console.log(self.config.webView.webview.history);
 					if(url !== "file://") {
 						self.globalMethods.closeWebControls(true);
 					}
