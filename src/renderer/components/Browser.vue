@@ -104,7 +104,7 @@ export default {
 						let rndClass = 'notify_id_' + this.count;
 						let newMainNotify = $('<div class="main_notify show"></div>');
 						newMainNotify.addClass(rndClass);
-						let newMainNotifyInfo = $('<span class="main_notify_info">' + text + '</span>');
+						let newMainNotifyInfo = $('<span class="main_notify_info text-truncate">' + text + '</span>');
 						newMainNotify.append(newMainNotifyInfo);
 						$('#main_notify_history').append(newMainNotify);
 						// $('#main_notify').attr('class', '').addClass('show').addClass(rndClass);
@@ -273,7 +273,7 @@ export default {
 
 					newWebView.on("dom-ready", event => {
 						console.log(event.target);
-						// Remove this once https://github.com/electron/electron/issues/14474 is fixed
+						// TODO: Remove this once https://github.com/electron/electron/issues/14474 is fixed
 						if(!self.config.webControlsOpen && $(event.target).hasClass('active')) {
 							console.log('focus hack');
 							self.config.webView.webview.blur();
@@ -302,6 +302,8 @@ export default {
 						self.globalMethods.presentTabByIndex(webViewIdCount);
 						self.config.webView = webViewObject;
 						// $(self.config.webView.webview).addClass('active');
+					} else {
+						self.config.mainNotification.show('Open in Tab: ' + target.url);
 					}
 					if (target == null) {
 						if (self.config.webViews.length > 1) {
