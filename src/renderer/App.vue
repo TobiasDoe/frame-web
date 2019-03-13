@@ -72,10 +72,13 @@ html, body {
 	&.web_controls_presented {
 		#web_content {
 			webview.active {
-				animation-name: blurWebView;
-				animation-fill-mode: forwards;
-				animation-duration: .05s;
-				animation-timing-function: ease-in;
+				opacity: 0.2;
+				filter: blur(15px);
+				// transform: scale(1.02);
+				// animation-name: blurWebView;
+				// animation-fill-mode: forwards;
+				// animation-duration: .05s;
+				// animation-timing-function: ease-in;
 			}
 		}
 	}
@@ -89,8 +92,10 @@ html, body {
 	@keyframes blurWebView {
 		// 0% { opacity: 1; filter: blur(.4rem); }
 		// 100% { opacity: 0; filter: blur(2rem); }
+		// 0% { filter: blur(.4rem); }
+		// 100% { filter: blur(2rem); }
 		0% { opacity: 1; }
-		100% { opacity: 0; }
+		100% { opacity: .2; }
 	}
 }
 

@@ -262,20 +262,20 @@ export default {
 
 					newWebView
 					.focusout(function() {
-						console.log("newWebView focusout", $( "*:focus" ));
+						console.log("newWebView focusout", $(this).attr('id'), $( "*:focus" )[0]);
 					})
 					.blur(function() {
-						console.log("newWebView blur", $( "*:focus" ));
+						console.log("newWebView blur", $(this).attr('id'), $( "*:focus" )[0]);
 					})
 					.focus(function() {
-						console.log("newWebView focus", $( "*:focus" ));
+						console.log("newWebView focus", $(this).attr('id'), $( "*:focus" )[0]);
 					});
 
 					let src = target != null ? target.url : 'file://'; // self.config.homepage;
-					newWebView.attr("src", src);
 					webViewIdCount++;
 					newWebView.attr("id", "webview_" + webViewIdCount);
 					newWebView.attr("wv_index", webViewIdCount);
+					newWebView.attr("src", src);
 					$("#web_content").append(newWebView);
 					let currentWV = document.querySelector("#webview_" + webViewIdCount);
 					self.globalMethods.registerWebViewEventListeners(currentWV);
@@ -290,7 +290,7 @@ export default {
 					if (target == null ||  (target != null && target.disposition !== "background-tab")) {
 						self.globalMethods.presentTabByIndex(webViewIdCount);
 						self.config.webView = webViewObject;
-						$(self.config.webView.webview).addClass('active');
+						// $(self.config.webView.webview).addClass('active');
 					}
 					if (target == null) {
 						if (self.config.webViews.length > 1) {
@@ -426,24 +426,29 @@ export default {
 					}
 				},
 				presentTabByIndex: function(tabIndex) {
-					console.log('presentTabByIndex');
+					console.log('presentTabByIndex', tabIndex);
 					for(let wvIndex = 0; wvIndex < self.config.webViews.length; wvIndex++) {
+						console.log('presentTabByIndex inside for', wvIndex);
 						let currWebView = self.config.webViews[wvIndex];
 						if(currWebView.index !== tabIndex) {
+							console.log('presentTabByIndex inside if');
 							$(currWebView.webview).removeClass('active');
 							$(currWebView.webview).attr("active", false);
+							currWebView.webview.blur();
 						} else {
-							$(currWebView.webview).addClass('active');
-							self.config.mainNotification.show(currWebView.title);
-							$(currWebView.webview).attr("active", true);
+							console.log('presentTabByIndex inside else');
 							self.config.currentWebViewIndex = tabIndex;
 							self.config.webView = currWebView;
+							$(currWebView.webview).addClass('active');
+							$(currWebView.webview).attr("active", true);
+							self.config.mainNotification.show(currWebView.title);
 							if (self.config.webControlsOpen) {
 								$('#tb_url')[0].value = self.config.webView.url;
-								$('#tb_url').focus;
-								$('#tb_url').select();
 							}
 						}
+					}
+					if(self.config.webView != null){
+						self.config.webView.webview.focus();
 					}
 					// self.globalMethods.doLayout();
 					// console.log(self.config.currentWebViewIndex);
@@ -666,6 +671,29 @@ export default {
 		ipcRenderer.on('leave-full-screen', function() {
 			console.log("leave-full-screen");
 			self.globalMethods.exitHTMLFullscreen();
+		});
+
+		ipcRenderer.on('window-lost-focus', function() {
+			console.log("window-lost-focus");
+			if(self.config.webView != null) {
+				console.log("will blur", self.config.webView.webview);
+				// $(self.config.webView.webview).focus();
+				self.config.webView.webview.blur();
+			}
+		});
+
+		ipcRenderer.on('window-got-focus', function() {
+			console.log("window-got-focus");
+			if(self.config.webView != null) {
+				if(self.config.webControlsOpen) {
+					// $('#tb_url').focus();
+					// $('#tb_url').select();
+				} else {
+					console.log("will focus", self.config.webView.webview, 'from: '+ $(this).attr('id'), $( "*:focus" )[0]);
+					// $(self.config.webView.webview).blur();
+					self.config.webView.webview.focus();
+				}
+			}
 		});
 
 // -----------------------------------------------------------
@@ -1237,7 +1265,7 @@ export default {
 		height: 100vh;
 		top: 0;
 		left: 0;
-		background: #fff;
+		// background: #fff;
 
 		&.active {
 			z-index: 1 !important;
@@ -1404,7 +1432,5 @@ export default {
 	80% { transform: translateX(-125px); opacity: 1; }
 	100% { transform: translateX(0px); opacity: .6; }
 }
-
-
 
 </style>

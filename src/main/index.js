@@ -130,12 +130,14 @@ function createWindow () {
 			"$('body').removeClass('window_focused').addClass('window_blured');" +
 			"$('#tb_url').focus();"
 		);
+		mainWindow.webContents.send('window-lost-focus');
 	});
 
 	mainWindow.on('focus', function() {
 		mainWindow.webContents.executeJavaScript(
 			"$('body').removeClass('window_blured').addClass('window_focused');"
 		);
+		mainWindow.webContents.send('window-got-focus');
 	});
 
 	mainWindow.on('leave-full-screen', function() {
