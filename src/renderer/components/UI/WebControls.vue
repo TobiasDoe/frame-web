@@ -1,7 +1,7 @@
 <template>
 	<div id="web_controls" class="web_controls">
 		<div class="inner_web_controls fullscreen d-flex w-100 flex-column align-items-center">
-			<h2 id="page_title" class="page_title flex-center mb-5 w-75">{{ config.webView.title }}</h2>
+			<h2 id="page_title" class="page_title flex-center mb-5 w-75">{{ config.webView.title == "New Tab" ? "This is Major Tom to Ground Control" : config.webView.title }}</h2>
 			<div id="tab_bar" class="tab_bar w-75 d-flex justify-content-center">
 				<span class="tab_card navbar-brand px-3" v-for="webview in config.webViews"
 					v-bind:class="webview.index === config.currentWebViewIndex ? 'current' : ''"
@@ -361,6 +361,8 @@ $web_controls_blur_opacity: .8;
 			transition: all .25s;
 			border-top-right-radius: 4px;
 			border-top-left-radius: 4px;
+			margin-left: .5rem;
+			margin-right: .5rem;
 
 			img {
 				height: 22px;

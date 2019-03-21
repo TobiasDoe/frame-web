@@ -506,9 +506,11 @@ export default {
 					for (let wvIndex = 0; wvIndex < self.config.webViews.length; wvIndex++) {
 						let currWebView = self.config.webViews[wvIndex];
 						if(currWebView.index === self.config.currentWebViewIndex) {
-							if(lastWv != null) {
+							if (wvIndex == 0) {
+								tabIndex = (self.config.webViews.length - 1);
+							} else if (lastWv != null) {
 								tabIndex = lastWv.index;
-							}else{
+							} else {
 								tabIndex = self.globalMethods.findNextTabIndex();
 							}
 							break;
