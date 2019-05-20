@@ -28,6 +28,10 @@ let browserOptions = {
 	height: 1010,
 	minWidth: 500,
 	minHeight: 520,
+	webPreferences: {
+		nodeIntegration: true,
+		webviewTag: true
+	},
 	// frame: false,
 	show: false,
 	useContentSize: true,
@@ -61,7 +65,7 @@ let browserOptions = {
 
 const winURL = process.env.NODE_ENV === 'development' ? `http://localhost:9080` : `file://${__dirname}/index.html`;
 if(process.env.NODE_ENV === 'development') {
-	browserOptions.webPreferences = { webSecurity: false };
+	browserOptions.webPreferences = { webSecurity: false, nodeIntegration: true, webviewTag: true };
 }
 
 function createWindow () {
