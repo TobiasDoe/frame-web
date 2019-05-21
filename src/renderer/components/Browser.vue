@@ -231,19 +231,8 @@ export default {
 							"(document.webkitFullscreenElement && document.webkitFullscreenElement !== null) ||" +
 							"(document.mozFullScreenElement && document.mozFullScreenElement !== null) ||" +
 							"(document.msFullscreenElement && document.msFullscreenElement !== null);" +
-							"" +
-						"var docElm = document.documentElement;" +
-						"if (!isInFullScreen) {" +
-							"if (docElm.requestFullscreen) {" +
-								"docElm.requestFullscreen();" +
-							"} else if (docElm.mozRequestFullScreen) {" +
-								"docElm.mozRequestFullScreen();" +
-							"} else if (docElm.webkitRequestFullScreen) {" +
-								"docElm.webkitRequestFullScreen();" +
-							"} else if (docElm.msRequestFullscreen) {" +
-								"docElm.msRequestFullscreen();" +
-							"}" +
-						"} else {" +
+						"" +
+						"if (isInFullScreen) {" +
 							"if (document.exitFullscreen) {" +
 								"document.exitFullscreen();" +
 							"} else if (document.webkitExitFullscreen) {" +
