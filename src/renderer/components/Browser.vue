@@ -70,6 +70,7 @@ export default {
 				currentWebViewIndex: null,
 				SearchSuggestions: [],
 				URLSuggestions: [],
+				HistorySuggestions: [],
 				blockGlobalInput: false,
 				currentFocusSuggestions: -1,
 				queryHistory: [],
@@ -334,6 +335,7 @@ export default {
 							self.config.requestUrl = event.url;
 
 							// self.config.mainNotification.show(event.url);
+							self.globalMethods.addHistoryEntry(event.url);
 
 							let targetWvIndex = $(event.target).attr('wv_index');
 							for (let wvIndex = 0; wvIndex < self.config.webViews.length; wvIndex++) {
@@ -357,7 +359,7 @@ export default {
 						}, 200);
 					},
 					handleLoadFinish: function(event) {
-						// console.log("handleLoadFinish", event.target.src);
+						console.log("handleLoadFinish", event.target.src);
 						$(event.target).removeClass('fresh_view');
 					},
 					handleLoadStop: function() {
@@ -552,6 +554,27 @@ export default {
 						console.log(error);
 					});
 				},
+				requestHistorySuggestions: async function(query, querySelect) {
+					console.log('History', query, querySelect);
+
+					const Config = require('electron-config');
+					const config = new Config();
+					let history = config.get('history', []);
+
+					let historySuggestions = [];
+
+					for (var historyEntryKey in history) {
+						if (history.hasOwnProperty(historyEntryKey)) {
+							let historyEntry = history[historyEntryKey];
+							if (historyEntry.link.indexOf(query) != -1) {
+								console.log('History foud:', query + ' in: ' + historyEntry.link);
+								console.log('History', self.config);
+								historySuggestions.push({ suggestion: historyEntry.link, info: historyEntry.count, call: self.globalMethods.navigateTo})
+							}
+						}
+					}
+					self.config.HistorySuggestions = historySuggestions;
+				},
 				showSuggestions: function(obj, querySelect) {
 					// let obj = $.parseJSON(data);
 					const query = obj[0];
@@ -652,6 +675,32 @@ export default {
 						self.config.webView.url = suggestion.suggestion;
 						$('#tb_url')[0].value = suggestion.suggestion;
 					}
+				},
+				addHistoryEntry: function(link) {
+					let self = this;
+					const Config = require('electron-config');
+					const config = new Config();
+
+					let history = config.get('history', []);
+
+					let found = false;
+
+					for (var historyEntryKey in history) {
+						if (history.hasOwnProperty(historyEntryKey)) {
+							let historyEntry = history[historyEntryKey];
+
+							if (historyEntry.link == link) {
+								found = true;
+								history[historyEntryKey].count = historyEntry.count + 1;
+							}
+						}
+					}
+
+					if (!found) {
+						let entry = { 'link': link, count: 0 };
+						history.unshift(entry);
+					}
+					config.set('history', history);
 				}
 			}
 		};
@@ -1107,6 +1156,22 @@ export default {
 				submenu: []
 			},
 			{
+				label: 'History',
+				submenu: [
+					{
+						label: 'Clear History',
+						accelerator: '',
+						role: 'clearHistory',
+						click: function(menuItem, currentWindow) {
+							let self = this;
+							const Config = require('electron-config');
+							const config = new Config();
+							config.delete('history');
+						}
+					}
+				]
+			},
+			{
 				role: 'window',
 				submenu: [{
 						role: 'minimize'
@@ -1179,7 +1244,7 @@ export default {
 				]
 			});
 			// Window menu.
-			template[5].submenu = [{
+			template[6].submenu = [{
 					label: 'Minimize',
 					accelerator: 'CmdOrCtrl+M',
 					role: 'minimize'
