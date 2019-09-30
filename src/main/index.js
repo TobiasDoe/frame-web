@@ -20,6 +20,7 @@ if (process.env.NODE_ENV !== 'development') {
 	global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
 
+// console.log('systemPreferences:', systemPreferences.isDarkMode());
 let vibrancy = systemPreferences.isDarkMode() ? 'ultra-dark' : 'medium-light';
 
 let mainWindow;
@@ -83,36 +84,40 @@ function createWindow () {
 	// tabWindow.loadURL(winURL)
 
 	// let easyListTxt = fs.readFileSync('easylist.txt', 'utf-8');
+	// let filterUrls = ['*://*/*'];
+	try {
+		session.defaultSession.webRequest.onBeforeRequest(function(details, callback) {
 
-	session.defaultSession.webRequest.onBeforeRequest(['*://*./*'], function(details, callback) {
+			let test_url = details.url;
+			let check_block_list = /\bads\b|2o7|a1\.yimg|ad(brite|click|farm|revolver|server|tech|vert)|at(dmt|wola)|banner|bizrate|blogads|bluestreak|burstnet|casalemedia|coremetrics|(double|fast)click|falkag|(feedster|right)media|googlesyndication|hitbox|httpads|imiclk|intellitxt|js\.overture|kanoodle|kontera|mediaplex|nextag|pointroll|qksrv|speedera|statcounter|tribalfusion|webtrends/
+			let more_check_block_list = /^(.+[-_.])??adse?rv(er?|ice)?s?[0-9]*[-.]|^(.+[-_.])??m?ad[sxv]?[0-9]*[-_.]|^(.+[-_.])??xn--|^adim(age|g)s?[0-9]*[-_.]|^adtrack(er|ing)?[0-9]*[-.]|^advert(s|is(ing|ements?))?[0-9]*[-_.]|^aff(iliat(es?|ion))?[-.]|^analytics?[-.]|^banners?[-.]|^beacons?[0-9]*[-.]|^count(ers?)?[0-9]*[-.]|^pixels?[-.]|^stat(s|istics)?[0-9]*[-.]|^telemetry[-.]|^track(ers?|ing)?[0-9]*[-.]|^traff(ic)?[-.]/
+			let check_white_list = /seller|min.js|logos?|jquery|catalog|status|premoa.*.jpg|rakuten|nitori-net|search\?tbs\=sbi\:|google.*\/search|\/shopping\/product|aclk?|translate.googleapis.com|encrypted-|product|www.googleadservices.com\/pagead\/aclk|statue|target.com|.css|lib.js|tealeaf.js/gi;
+			let block_me = check_block_list.test(test_url);
+			let more_block_me = more_check_block_list.test(test_url);
+			let release_me = check_white_list.test(test_url);
 
-		let test_url = details.url;
-		let check_block_list = /\bads\b|2o7|a1\.yimg|ad(brite|click|farm|revolver|server|tech|vert)|at(dmt|wola)|banner|bizrate|blogads|bluestreak|burstnet|casalemedia|coremetrics|(double|fast)click|falkag|(feedster|right)media|googlesyndication|hitbox|httpads|imiclk|intellitxt|js\.overture|kanoodle|kontera|mediaplex|nextag|pointroll|qksrv|speedera|statcounter|tribalfusion|webtrends/
-		let more_check_block_list = /^(.+[-_.])??adse?rv(er?|ice)?s?[0-9]*[-.]|^(.+[-_.])??m?ad[sxv]?[0-9]*[-_.]|^(.+[-_.])??xn--|^adim(age|g)s?[0-9]*[-_.]|^adtrack(er|ing)?[0-9]*[-.]|^advert(s|is(ing|ements?))?[0-9]*[-_.]|^aff(iliat(es?|ion))?[-.]|^analytics?[-.]|^banners?[-.]|^beacons?[0-9]*[-.]|^count(ers?)?[0-9]*[-.]|^pixels?[-.]|^stat(s|istics)?[0-9]*[-.]|^telemetry[-.]|^track(ers?|ing)?[0-9]*[-.]|^traff(ic)?[-.]/
-		let check_white_list = /seller|min.js|logos?|jquery|catalog|status|premoa.*.jpg|rakuten|nitori-net|search\?tbs\=sbi\:|google.*\/search|\/shopping\/product|aclk?|translate.googleapis.com|encrypted-|product|www.googleadservices.com\/pagead\/aclk|statue|target.com|.css|lib.js|tealeaf.js/gi;
-		let block_me = check_block_list.test(test_url);
-		let more_block_me = more_check_block_list.test(test_url);
-		let release_me = check_white_list.test(test_url);
+			if (release_me) {
+				// console.log("white_listed!", details.url);
+				callback({
+					cancel: false
+				})
+			} else if (block_me || more_block_me) {
+				// console.log("black_listed!", details.url);
+				callback({
+					cancel: true
+				});
 
-		if (release_me) {
-			// console.log("white_listed!", details.url);
-			callback({
-				cancel: false
-			})
-		} else if (block_me || more_block_me) {
-			// console.log("black_listed!", details.url);
-			callback({
-				cancel: true
-			});
+			} else {
+				// console.log("not_black/white_listed!", details.url);
+				callback({
+					cancel: false
+				})
+			}
 
-		} else {
-			// console.log("not_black/white_listed!", details.url);
-			callback({
-				cancel: false
-			})
-		}
-
-	});
+		});
+	} catch(error) {
+		console.log('BIG ERROR\n', error);
+	}
 
 	mainWindow.once('ready-to-show', mainWindow.show);
 
