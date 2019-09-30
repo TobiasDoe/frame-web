@@ -21,7 +21,7 @@ if (process.env.NODE_ENV !== 'development') {
 }
 
 // console.log('systemPreferences:', systemPreferences.isDarkMode());
-let vibrancy = systemPreferences.isDarkMode() ? 'ultra-dark' : 'medium-light';
+// let vibrancy = systemPreferences.isDarkMode() ? 'ultra-dark' : 'medium-light';
 
 let mainWindow;
 let browserOptions = {
@@ -41,8 +41,8 @@ let browserOptions = {
 	title: 'frame',
 	// scrollBounce: true
 	// vibrancy: 'appearance-based'
-	// vibrancy: 'ultra-dark'
-	vibrancy: vibrancy
+	vibrancy: 'ultra-dark'
+	// vibrancy: vibrancy
 	// icon: './build/icons/icon.icns'
 };
 
