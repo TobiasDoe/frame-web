@@ -540,7 +540,7 @@ export default {
 					}
 					self.globalMethods.navigateTo(requestURL);
 				},
-				requestSearchSuggestions: function(query, querySelect) {
+				requestSearchSuggestions: async function(query, querySelect) {
 					let searchQuery = "https://suggestqueries.google.com/complete/search?client=chrome&q=" + query;
 					let config = {
 						headers: {'Access-Control-Allow-Origin': '*'}
@@ -571,6 +571,9 @@ export default {
 								console.log('History', self.config);
 								historySuggestions.push({ suggestion: historyEntry.link, info: historyEntry.count, call: self.globalMethods.navigateTo})
 							}
+						}
+						if (historySuggestions.length >= 10) {
+							break;
 						}
 					}
 					self.config.HistorySuggestions = historySuggestions;
@@ -624,10 +627,12 @@ export default {
 						event.preventDefault();
 						if (self.config.currentFocusSuggestions > -1) {
 							let suggestion = null;
-							if (self.config.currentFocusSuggestions >= self.config.URLSuggestions.length) {
-								suggestion = self.config.SearchSuggestions[self.config.currentFocusSuggestions - self.config.URLSuggestions.length];
+							if (self.config.currentFocusSuggestions >= (self.config.HistorySuggestions.length + self.config.URLSuggestions.length)) {
+								suggestion = self.config.SearchSuggestions[self.config.currentFocusSuggestions - (self.config.URLSuggestions.length + self.config.HistorySuggestions.length)];
+							} else if (self.config.currentFocusSuggestions >= self.config.HistorySuggestions.length) {
+								suggestion = self.config.URLSuggestions[self.config.currentFocusSuggestions - self.config.HistorySuggestions.length];
 							} else {
-								suggestion = self.config.URLSuggestions[self.config.currentFocusSuggestions];
+								suggestion = self.config.HistorySuggestions[self.config.currentFocusSuggestions];
 							}
 							suggestion.call(suggestion.suggestion);
 						} else {
@@ -654,7 +659,7 @@ export default {
 								}
 								break;
 							case 40:
-								if (self.config.currentFocusSuggestions !== (self.config.SearchSuggestions.length + self.config.URLSuggestions.length) - 1) {
+								if (self.config.currentFocusSuggestions !== (self.config.HistorySuggestions.length + self.config.SearchSuggestions.length + self.config.URLSuggestions.length) - 1) {
 									self.config.currentFocusSuggestions = self.config.currentFocusSuggestions + 1;
 								}
 								break;
@@ -664,10 +669,12 @@ export default {
 				},
 				onSuggestionSelectionChange: function() {
 					let suggestion = null;
-					if (self.config.currentFocusSuggestions >= self.config.URLSuggestions.length) {
-						suggestion = self.config.SearchSuggestions[self.config.currentFocusSuggestions - self.config.URLSuggestions.length];
+					if (self.config.currentFocusSuggestions >= (self.config.HistorySuggestions.length + self.config.URLSuggestions.length)) {
+						suggestion = self.config.SearchSuggestions[self.config.currentFocusSuggestions - (self.config.URLSuggestions.length + self.config.HistorySuggestions.length)];
+					} else if (self.config.currentFocusSuggestions >= self.config.HistorySuggestions.length) {
+						suggestion = self.config.URLSuggestions[self.config.currentFocusSuggestions - self.config.HistorySuggestions.length];
 					} else {
-						suggestion = self.config.URLSuggestions[self.config.currentFocusSuggestions];
+						suggestion = self.config.HistorySuggestions[self.config.currentFocusSuggestions];
 					}
 					// console.log(suggestion);
 					if (suggestion != null) {

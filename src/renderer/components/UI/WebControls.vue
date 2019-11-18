@@ -29,7 +29,7 @@
 					<!-- <input type="submit" value="Go" hidden v-on:click.prevent="globalMethods.submitRequestUrl(config.webView.url)"> -->
 				</form>
 			</div>
-			<div class="suggestions_bar w-75" id="suggestions_bar" v-if="(this.urlBarHasFocus === true && (config.SearchSuggestions.length != 0 || config.URLSuggestions.length != 0))">
+			<div class="suggestions_bar w-75" id="suggestions_bar" v-if="(this.urlBarHasFocus === true && (config.HistorySuggestions.length != 0 || config.SearchSuggestions.length != 0 || config.URLSuggestions.length != 0))">
 				<div class="history">
 					<div class="group" v-if="config.HistorySuggestions.length != 0">history</div>
 						<div class="" v-for="(suggestion, index) in config.HistorySuggestions">
