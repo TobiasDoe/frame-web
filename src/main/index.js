@@ -40,8 +40,8 @@ let browserOptions = {
 	titleBarStyle: 'hidden',
 	title: 'frame',
 	// scrollBounce: true
-	// vibrancy: 'appearance-based'
-	vibrancy: 'ultra-dark'
+	vibrancy: 'appearance-based'
+	// vibrancy: 'ultra-dark'
 	// vibrancy: vibrancy
 	// icon: './build/icons/icon.icns'
 };

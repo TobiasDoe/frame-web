@@ -562,6 +562,7 @@ export default {
 					let history = config.get('history', []);
 
 					let historySuggestions = [];
+					let lastSuggestionCount = -1;
 
 					for (var historyEntryKey in history) {
 						if (history.hasOwnProperty(historyEntryKey)) {
@@ -569,6 +570,7 @@ export default {
 							if (historyEntry.link.indexOf(query) != -1) {
 								console.log('History foud:', query + ' in: ' + historyEntry.link);
 								console.log('History', self.config);
+
 								historySuggestions.push({ suggestion: historyEntry.link, info: historyEntry.count, call: self.globalMethods.navigateTo})
 							}
 						}
@@ -576,6 +578,12 @@ export default {
 							break;
 						}
 					}
+
+					let list = historySuggestions; // {"you": 100, "me": 75, "foo": 116, "bar": 15};
+					list.sort((a, b) => (a.info < b.info) ? 1 : -1)
+
+					console.log("keysSorted", list);
+
 					self.config.HistorySuggestions = historySuggestions;
 				},
 				showSuggestions: function(obj, querySelect) {

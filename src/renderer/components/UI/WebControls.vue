@@ -33,7 +33,7 @@
 				<div class="history">
 					<div class="group" v-if="config.HistorySuggestions.length != 0">history</div>
 						<div class="" v-for="(suggestion, index) in config.HistorySuggestions">
-							<div class="suggestion_row" v-bind:class="config.currentFocusSuggestions === index ? 'selected' : ''">
+							<div class="suggestion_row text-truncate" v-bind:class="config.currentFocusSuggestions === index ? 'selected' : ''" @click="suggestion.call(suggestion.suggestion);">
 								<span class="suggestion">{{ suggestion.suggestion }}</span><span class="info" v-if="suggestion.info != ''">{{ ' - ' + suggestion.info }}</span>
 							</div>
 						</div>
@@ -41,7 +41,7 @@
 				<div class="websites">
 					<div class="group" v-if="config.SearchSuggestions.length != 0">websites</div>
 						<div class="" v-for="(suggestion, index) in config.URLSuggestions">
-							<div class="suggestion_row" v-bind:class="config.currentFocusSuggestions === config.HistorySuggestions.length + index ? 'selected' : ''">
+							<div class="suggestion_row text-truncate" v-bind:class="config.currentFocusSuggestions === config.HistorySuggestions.length + index ? 'selected' : ''" @click="suggestion.call(suggestion.suggestion);">
 								<span class="suggestion">{{ suggestion.suggestion }}</span><span class="info" v-if="suggestion.info != ''">{{ ' - ' + suggestion.info }}</span>
 							</div>
 						</div>
@@ -49,7 +49,7 @@
 				<div class="searches">
 					<div class="group" v-if="config.URLSuggestions.length != 0">Search with Google</div>
 						<div class="" v-for="(suggestion, index) in config.SearchSuggestions">
-						<div class="suggestion_row" v-bind:class="config.currentFocusSuggestions === config.HistorySuggestions.length + config.URLSuggestions.length + index ? 'selected' : ''">
+						<div class="suggestion_row text-truncate" v-bind:class="config.currentFocusSuggestions === config.HistorySuggestions.length + config.URLSuggestions.length + index ? 'selected' : ''" @click="suggestion.call(suggestion.suggestion);">
 							<span class="suggestion">{{ suggestion.suggestion }}</span><span class="info" v-if="suggestion.info != ''">{{ ' - ' + suggestion.info }}</span>
 						</div>
 					</div>
