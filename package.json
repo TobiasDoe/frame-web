@@ -1,7 +1,7 @@
 {
   "name": "frame",
-  "version": "0.4.4",
-  "tag": "v0.4.4",
+  "version": "0.4.5",
+  "tag": "v0.4.5",
   "homepage": "https://frame.onmyown.at",
   "keywords": [
     "frame",
@@ -36,25 +36,6 @@
     "files": [
       "dist/electron/**/*"
     ],
-    "dmg": {
-      "contents": [
-        {
-          "x": 410,
-          "y": 150,
-          "type": "link",
-          "path": "/Applications"
-        },
-        {
-          "x": 130,
-          "y": 150,
-          "type": "file"
-        }
-      ],
-      "iconSize": 120,
-      "iconTextSize": 22,
-      "internetEnabled": true,
-      "background": "build/assets/frame_background.tif"
-    },
     "mac": {
       "icon": "build/icons/icon.icns",
       "publish": [
