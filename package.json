@@ -16,7 +16,7 @@
   "main": "./dist/electron/main.js",
   "scripts": {
     "dist": "build",
-    "release": "build -p",
+    "release": "build",
     "build": "node .electron-vue/build.js && electron-builder && open ./build",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
