@@ -89,8 +89,8 @@ function createWindow () {
 		session.defaultSession.webRequest.onBeforeRequest(function(details, callback) {
 
 			let test_url = details.url;
-			let check_block_list = /\bads\b|2o7|a1\.yimg|ad(brite|click|farm|revolver|server|tech|vert)|at(dmt|wola)|banner|bizrate|blogads|bluestreak|burstnet|casalemedia|coremetrics|(double|fast)click|falkag|(feedster|right)media|googlesyndication|hitbox|httpads|imiclk|intellitxt|js\.overture|kanoodle|kontera|mediaplex|nextag|pointroll|qksrv|speedera|statcounter|tribalfusion|webtrends/
-			let more_check_block_list = /^(.+[-_.])??adse?rv(er?|ice)?s?[0-9]*[-.]|^(.+[-_.])??m?ad[sxv]?[0-9]*[-_.]|^(.+[-_.])??xn--|^adim(age|g)s?[0-9]*[-_.]|^adtrack(er|ing)?[0-9]*[-.]|^advert(s|is(ing|ements?))?[0-9]*[-_.]|^aff(iliat(es?|ion))?[-.]|^analytics?[-.]|^banners?[-.]|^beacons?[0-9]*[-.]|^count(ers?)?[0-9]*[-.]|^pixels?[-.]|^stat(s|istics)?[0-9]*[-.]|^telemetry[-.]|^track(ers?|ing)?[0-9]*[-.]|^traff(ic)?[-.]/
+			let check_block_list = /\bads\b|2o7|a1\.yimg|ad(brite|click|farm|revolver|server|tech|vert)|at(dmt|wola)|banner|bizrate|blogads|bluestreak|burstnet|casalemedia|coremetrics|(double|fast)click|falkag|(feedster|right)media|googlesyndication|hitbox|httpads|imiclk|intellitxt|js\.overture|kanoodle|kontera|mediaplex|nextag|pointroll|qksrv|speedera|statcounter|tribalfusion|webtrends/;
+			let more_check_block_list = /^(.+[-_.])??adse?rv(er?|ice)?s?[0-9]*[-.]|^(.+[-_.])??m?ad[sxv]?[0-9]*[-_.]|^(.+[-_.])??xn--|^adim(age|g)s?[0-9]*[-_.]|^adtrack(er|ing)?[0-9]*[-.]|^advert(s|is(ing|ements?))?[0-9]*[-_.]|^aff(iliat(es?|ion))?[-.]|^analytics?[-.]|^banners?[-.]|^beacons?[0-9]*[-.]|^count(ers?)?[0-9]*[-.]|^pixels?[-.]|^stat(s|istics)?[0-9]*[-.]|^telemetry[-.]|^track(ers?|ing)?[0-9]*[-.]|^traff(ic)?[-.]/;
 			let check_white_list = /seller|min.js|logos?|jquery|catalog|status|premoa.*.jpg|rakuten|nitori-net|search\?tbs\=sbi\:|google.*\/search|\/shopping\/product|aclk?|translate.googleapis.com|encrypted-|product|www.googleadservices.com\/pagead\/aclk|statue|target.com|.css|lib.js|tealeaf.js/gi;
 			let block_me = check_block_list.test(test_url);
 			let more_block_me = more_check_block_list.test(test_url);
