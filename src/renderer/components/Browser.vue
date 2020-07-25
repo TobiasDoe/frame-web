@@ -513,7 +513,9 @@ export default {
 				navigateTo: function(url) {
 					// resetExitedState();
 					console.log('navigateTo', url);
-					self.config.webView.webview.loadURL(url);
+					self.config.webView.webview.loadURL(url, {
+						userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36'
+					});
 					self.config.currentUrl = url;
 					self.config.requestUrl = url;
 					// console.log(self.config.webView.webview.history);
